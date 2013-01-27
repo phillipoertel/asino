@@ -24,9 +24,9 @@ start your local server
 ##Prerequisites
 MYSQL
 
-Ruby 1.9.2
+Ruby 1.9.3
 
-Rails 3.0.9
+Rails 3.0.19
 
 Firefox or Chrome or Safari (IE and Windows has not been tested)
 
