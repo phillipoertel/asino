@@ -1,0 +1,12 @@
+<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
+
+<div class="column right">
+  <h1>Willkommen zu asino - Management privater Finanzen!</h1>
+  <%= raw note 'Willkommen!', 'asino ist noch leer.<br/>Bitte legen Sie zu allererst ein Konto an!' %>
+  Sie haben noch keine Konten angelegt.
+  <div class="m20">
+	<%= link_to 'Neues Konto anlegen', new_account_path, :class => 'button' %>
+  </div>
+</div>
+
+<div class="clr"> </div>

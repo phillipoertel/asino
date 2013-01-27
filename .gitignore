@@ -14,3 +14,11 @@ capybara-*.html
 **.orig
 rerun.txt
 pickle-email-*.html
+server_deployment.txt
+db/backups/*
+rails_best_practices_output.html
+pin
+.rvmrc
+.powenv
+config/locales/log
+.DS_Store

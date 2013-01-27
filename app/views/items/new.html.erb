@@ -1,0 +1,53 @@
+<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
+
+<div class="column right">
+  <h1>Neue Zahlung</h1>
+  
+  <div class="note">
+    <a href="#">  
+      <h2>Vorsicht!</h2>  
+      <p>Bitte dran denken: Bei Abbuchungen immer einen negativen Betrag eingeben! </p>  
+    </a>
+  </div>
+
+<%= form_for(@item) do |f| %>
+  <%= error_messages_for @item %>
+
+  <p>
+	<%= f.label :account_id, 'Konto' %>:  
+	<% if @account %>
+      <%= @account.title %>
+      <%= f.hidden_field :account_id, :value => @account.id %>
+    <% else %>
+      <%= f.collection_select(:account_id, Account.all(:order => 'title'), :id, :title, :class => "fancy") %>
+    <% end %>
+  </p>
+  <p>
+    <%= f.label :amount, 'Betrag' %><br />
+    <%= f.text_field :amount, :size => 60, :autofocus => true %>
+  </p>
+  <p>
+    <%= f.label :payee, 'Empfänger' %><br />
+    <%= f.text_field :payee, :size => 60 %>
+  </p>
+  <p>
+    <%= f.label :description, 'Beschreibung' %><br />
+    <%= f.text_field :description, :size => 60 %>
+  </p>
+  <p>
+    <%= f.label :category_id, 'Kategorie' %><br />
+    <%= f.collection_select(:category_id, Category.all(:order => 'name'), :id, :name, {:include_blank => true}, :class => "fancy") %>
+  </p>
+  <% if @accounts.size > 1 %>
+  <p>
+	<%= f.check_box :transfer %>
+    <%= f.label :transfer, 'Zahlung ist Transfer zwischen eigenen Konten' %>
+  </p>
+  <% end %>
+  <p>
+    <%= f.submit 'Speichern' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
+  </p>
+<% end %>
+</div>
+
+<div class="clr"></div>

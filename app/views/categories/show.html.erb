@@ -1,0 +1,30 @@
+<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
+
+<div class="column right">
+  <h1 id="pagetitle">Kategorie: <%= @category.name %></h1>
+
+
+    <table class="category_sub">
+	  <tr>
+	    <td colspan="3" class="ar<%= get_saldo_class(@items.sum(:amount)) %>"><%= currency @items.sum(:amount) %></td>
+	    <td></td>
+	  </tr>
+    <% @items.each do |item| %>
+      <tr>
+        <td style="width:175px;">
+          <%= item.payee %>
+        </td>
+        <td style="width:175px;">
+          <%= item.description %>
+        </td>
+        <td class="ar<%= get_saldo_class(item.amount) %>" style="width:80px;">
+          <%= currency item.amount %>
+        </td>
+        <td class="ar"></td>
+        <td></td>
+      </tr>
+    <% end %>
+  </table>
+</div>
+
+<div class="clr"> </div>

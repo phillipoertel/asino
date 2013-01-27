@@ -1,0 +1,37 @@
+de:
+  date:
+    abbr_month_names: 
+      - ~
+      - Jan
+      - Feb
+      - Mär
+      - Apr
+      - Mai
+      - Jun
+      - Jul
+      - Aug
+      - Sep
+      - Okt
+      - Nov
+      - Dez 
+    month_names: 
+    - 
+    - Januar
+    - Februar
+    - März
+    - April
+    - Mai
+    - Juni
+    - Juli
+    - August
+    - September
+    - Oktober
+    - November
+    - Dezember
+    formats:
+      monthname_abbrev: "%b" 
+  time:
+    formats:
+      default: "%d.%m.%y"
+      monthname: "%B"
+      monthname_and_year: "%B %Y"

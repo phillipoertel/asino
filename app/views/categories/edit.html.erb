@@ -1,0 +1,32 @@
+<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
+
+<div class="column right">
+<h1>Kategorie bearbeiten</h1>
+
+<%= form_for(@category) do |f| %>
+
+  <%= error_messages_for @category %>
+
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :category %><br />
+    <%= f.collection_select(:category_id, 
+                            Category.where('category_id is NULL').order('name'), :id, :name, {:include_blank => true}) %>
+
+  </p>
+  <p>
+	<%= f.check_box :transfer %>
+    <%= f.label :transfer, 'Zahlungen dieser Kategorie sind Transfers zwischen eigenen Konten' %>
+  </p>
+  <p>
+    <%= f.submit 'Speichern' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
+  </p>
+
+<% end %>
+
+</div>
+
+<div class="clr"></div>

@@ -1,0 +1,40 @@
+<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
+
+<div class="column right">
+<h1 id="pagetitle">Kategorien verwalten</h1>
+<div class="m20">
+<%= link_to 'Neue Kategorie anlegen', new_category_path %>
+</div>
+<table style="width:500px;">
+  <tr>
+    <th colspan="2" class="al">Kategorie</th>
+    <th class="ar" style="width:50px;">Zahlungen</th>
+    <th style="width:50px;"></th>
+  </tr>
+
+<% @categories.each do |category| %>
+  <tr id="category_<%= category.id %>" class="<%= cycle('odd', 'even') %> hover">
+    <td colspan="2"><%= link_to h(category.name), category %></td>
+    <td class="ar"><%= category.items.size %></td>
+    <td class="ar">
+      <%= link_to image_tag('icons/edit.png', :alt => "Bearbeiten"), edit_category_path(category) %>
+      <%= link_to image_tag('icons/delete.png', :alt => "Löschen"), category, :confirm => 'Are you sure?', :method => :delete %>
+    </td>
+  </tr>
+  <% category.categories.each do |subcategory| %>
+  <tr id="category_<%= category.id %>" class="<%= cycle('odd', 'even') %> hover">
+	<td class="ar">-</td>
+    <td><%= link_to h(subcategory.name), subcategory %></td>
+    <td class="ar"><%= category.items.size %></td>
+    <td class="ar">
+      <%= link_to image_tag('icons/edit.png', :alt => "Bearbeiten"), edit_category_path(subcategory) %>
+      <%= link_to image_tag('icons/delete.png', :alt => "Löschen"), category_path(subcategory), :confirm => 'Are you sure?', :method => :delete %>
+    </td>
+  </tr>
+  <% end %>
+<% end %>
+</table>
+
+</div>
+
+<div class="clr"> </div>
