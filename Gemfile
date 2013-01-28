@@ -1,17 +1,20 @@
-source 'http://rubygems.org'
+source :rubygems
 
-gem 'rails', '3.0.19'
+gem 'rails'
 gem 'devise'
 gem 'mysql2'
 gem 'feedzirra'
 
+group :development do
+   # a thin and *fast* server for development: http://code.macournoyer.com/thin/
+  gem 'thin'
+end
+
 group :cucumber, :test do
-  gem 'capybara', '~> 1.1.1'	
-  gem 'cucumber', '~> 1.1.0'
-  gem 'cucumber-rails', '~> 1.1.0'
-  gem 'database_cleaner', '~> 0.6.7'
+  gem 'capybara'
+  gem 'cucumber'
+  gem 'cucumber-rails'
+  gem 'database_cleaner'
   gem 'factory_girl'
   gem 'factory_girl_rails'
-  gem 'email_spec'
-  gem 'rspec-rails'
 end
