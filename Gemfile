@@ -12,9 +12,8 @@ end
 
 group :cucumber, :test do
   gem 'capybara'
-  gem 'cucumber'
   gem 'cucumber-rails'
+  gem 'rspec-rails'
   gem 'database_cleaner'
-  gem 'factory_girl'
   gem 'factory_girl_rails'
 end
