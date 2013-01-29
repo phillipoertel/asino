@@ -1,7 +1,7 @@
 class AccountImporter::HBCI
   
-  def initialize(account_id)
-    @account_id = account_id
+  def initialize(options = {})
+    @account_id = options[:account_id]
   end  
   
   def import!
