@@ -1,11 +1,10 @@
 # encoding: utf-8
-# Account actually refers to a realy bank account. It holds many items.
+# Account actually refers to a real bank account. It holds many items.
 class Account < ActiveRecord::Base
 
   require 'rss/2.0'
   require 'open-uri'
   require 'date'
-  #require 'feed_tools'
 
   has_many :items, :order => 'created_at desc', :dependent => :destroy
   has_many :rulesets, :dependent => :destroy
@@ -14,9 +13,11 @@ class Account < ActiveRecord::Base
   validates_presence_of :title, :message => "Bitte geben Sie dem Konto einen Namen!"
   validates_uniqueness_of :title, :message => "Dieser Kontoname wird bereits verwendet!"
   
-  def import_from_feed
-    return if self.feed.blank?
-    feed = Feedzirra::Feed.fetch_and_parse(self.feed)
+  # when an rss_file is given, parse that, else fetch the feed. That's useful for testing.
+  def import_from_feed(feed_file = nil)
+    file = open(feed_file || self.feed)
+    return unless file
+    feed = Feedzirra::Feed.parse(file.read)
     puts "got feed for account #{self.id}: #{self.feed}"
     puts feed.entries.size
     feed.entries.each do |entry|
