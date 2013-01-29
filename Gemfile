@@ -14,6 +14,7 @@ group :cucumber, :test do
   gem 'capybara'
   gem 'cucumber-rails'
   gem 'rspec-rails'
+  gem 'fuubar' # prettier rspec output
   gem 'database_cleaner'
   gem 'factory_girl_rails'
 end
