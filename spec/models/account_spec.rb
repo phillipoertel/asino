@@ -16,6 +16,10 @@ describe Account do
     Item.all
   end
     
+  it "should have a valid factory" do
+    FactoryGirl.build(:account).should be_valid
+  end
+  
   it "imports the data correctly" do
     items = import!
     items.count.should == 3
