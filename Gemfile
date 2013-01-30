@@ -5,6 +5,8 @@ gem 'devise'
 gem 'mysql2'
 gem 'feedzirra'
 
+gem 'jquery-rails'
+
 group :development do
    # a thin and *fast* server for development: http://code.macournoyer.com/thin/
   gem 'thin'
