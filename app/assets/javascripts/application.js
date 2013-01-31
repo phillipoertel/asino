@@ -1,5 +1,7 @@
 //= require jquery
 //= require jquery_ujs
+// asino initializes the application, load it first
+//= require asino
 //= require_tree .
 
 
