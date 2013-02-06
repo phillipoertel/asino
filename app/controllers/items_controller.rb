@@ -74,11 +74,8 @@ class ItemsController < ApplicationController
     @item.category_id = category.id
     @item.update_attribute(:category_id, params[:item][:category_id])
     @item.update_attribute(:transfer, (category.transfer ? true : false))
-    @item.reload
-    render :update do |page|
-      page.replace_html "item_#{item.id}", :partial => 'items/item_row_cells', :locals => {:item => @item, 
-                                                                                           :account => @account}
-    end
+
+    render :nothing => true
   end
   
   
