@@ -64,10 +64,6 @@ class ItemsController < ApplicationController
 
   def destroy
     @item.destroy
-
-    render :update do |page|
-      page.visual_effect :blind_up, "item_#{@item.id}", :duration => 0.5
-    end
   end
   
   
