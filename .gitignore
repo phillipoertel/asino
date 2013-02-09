@@ -22,4 +22,4 @@ pin
 .powenv
 config/locales/log
 .DS_Store
-data/*
+data
