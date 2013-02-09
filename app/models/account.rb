@@ -19,13 +19,13 @@ class Account < ActiveRecord::Base
     self.feed
   end
   
-  def import_from_feed(feed_file = nil)
+  def import(feed_file = nil)
     importer = AccountImporter.for(self.importer)
     options = {
       # when an rss_file is given, parse that, else fetch the feed. That's useful for testing.
       # FIXME this will move to AccountImporter::Saldomat
       feed_file: open(feed_file || self.feed)
     }
-    importer.new(account, options).import!
+    importer.new(self, options).import!
   end
 end

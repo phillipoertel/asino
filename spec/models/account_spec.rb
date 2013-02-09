@@ -12,7 +12,7 @@ describe Account do
   
   def import!
     Item.any_instance.stub(:add_to_monthreport).and_return(true)
-    Account.new.import_from_feed('test/fixtures/saldomat.rss')
+    Account.new.import('test/fixtures/saldomat.rss')
     Item.all
   end
     

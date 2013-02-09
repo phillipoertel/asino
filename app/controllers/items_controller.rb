@@ -102,7 +102,7 @@ class ItemsController < ApplicationController
     accounts = Account.find(:all)
     accounts.each do |account|
       next if account.feed.blank?
-      if account.import_from_feed
+      if account.import
         Rails.logger.debug "imported from feed"
       else
         msg = "#{account.title} konnte nicht aktualisiert werden, der RSS Feed ist nicht g&uuml;ltig!"

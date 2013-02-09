@@ -13,7 +13,7 @@
   
   <p>
     <%= f.label :importer, 'Quelle' %><br />
-    <%= f.select('importer', options_for_select(AccountImporter::TYPES.map { |i| [i, i] }, 'Saldomat')) %><br />
+    <%= f.select('importer', options_for_select(AccountImporter::TYPES.map { |i| [i, i] }, @account.importer)) %><br />
   </p>
   
   <p>
