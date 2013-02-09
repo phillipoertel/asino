@@ -33,7 +33,7 @@ class AccountImporter::Saldomat
       
       Item.create({
         :uid => entry.id, 
-        :created_at => entry.updated.to_date,
+        :created_at => entry.updated.to_date.to_datetime + 12.hours,
         :account_id => @account_id,
         :amount => entry.title.sanitize.split(' - ')[0].gsub('.','').gsub(',','.').to_f,
         :payee => entry.title.sanitize.split(' - ')[1],

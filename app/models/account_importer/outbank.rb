@@ -26,7 +26,7 @@ class AccountImporter::Outbank
       attributes = {}
       attributes[:account_id]  = @account_id
       attributes[:uid]         = entry.unique_id
-      attributes[:created_at]  = entry.booked_on
+      attributes[:created_at]  = entry.booked_on.to_datetime + 12.hours
       attributes[:description] = entry.description
       attributes[:amount]      = entry.amount.to_f / 100
       attributes
