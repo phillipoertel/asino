@@ -2,10 +2,6 @@
 # Account actually refers to a real bank account. It holds many items.
 class Account < ActiveRecord::Base
 
-  require 'rss/2.0'
-  require 'open-uri'
-  require 'date'
-
   has_many :items, :order => 'created_at desc', :dependent => :destroy
   has_many :rulesets, :dependent => :destroy
   has_many :monthreports, :dependent => :destroy
@@ -19,13 +15,8 @@ class Account < ActiveRecord::Base
     self.feed
   end
   
-  def import(feed_file = nil)
-    importer = AccountImporter.for(self.importer)
-    options = {
-      # when an rss_file is given, parse that, else fetch the feed. That's useful for testing.
-      # FIXME this will move to AccountImporter::Saldomat
-      feed_file: open(feed_file || self.feed)
-    }
-    importer.new(self, options).import!
+  def import
+    import_class = AccountImporter.for(self.importer)
+    import_class.new(self).import
   end
 end

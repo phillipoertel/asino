@@ -1,10 +1,10 @@
 class AccountImporter::HBCI
   
-  def initialize(account, options = {})
+  def initialize(account)
     @account_id = account.id
   end  
   
-  def import!
+  def import
     "Hello from the HBCI Account importer ..."
   end
   

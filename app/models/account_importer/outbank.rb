@@ -1,18 +1,11 @@
 class AccountImporter::Outbank
   
-  MAPPING = {
-    # outbank line attribute => item attribute
-    :unique_id => :uid,
-    :booked_on => :created_at,
-    :description => :description
-  }
-  
-  def initialize(account, options = {})
+  def initialize(account)
     @account_id = account.id
     @lines = Outbanker::StatementLines.read(account.outbank_file_name)
   end
   
-  def import!
+  def import
     
     @lines.each do |entry|
       
@@ -29,13 +22,18 @@ class AccountImporter::Outbank
 
   private
   
-    def create_item(entry)
+    def mapped_attributes(entry)
       attributes = {}
       attributes[:account_id]  = @account_id
       attributes[:uid]         = entry.unique_id
       attributes[:created_at]  = entry.booked_on
       attributes[:description] = entry.description
       attributes[:amount]      = entry.amount.to_f / 100
+      attributes
+    end
+    
+    def create_item(entry)
+      attributes = mapped_attributes(entry)
       Item.create!(attributes)
     end
     
