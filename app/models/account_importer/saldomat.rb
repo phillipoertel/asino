@@ -1,8 +1,14 @@
 class AccountImporter::Saldomat
   
-  def initialize(options = {})
+  def initialize(account, options = {})
+    @account_id = account.id
+    options = {
+      # when an rss_file is given, parse that, else fetch the feed. That's useful for testing.
+      # FIXME this will move to AccountImporter::Saldomat
+      feed_file: open(feed_file || self.feed),
+      account_id: self.id
+    }    
     @feed = options[:feed_file].read
-    @account_id = options[:account_id]
   end
   
   def import!

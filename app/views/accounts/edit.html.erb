@@ -10,6 +10,12 @@
     <%= f.label :title, 'Name des Kontos' %><br />
     <%= f.text_field :title %>
   </p>
+  
+  <p>
+    <%= f.label :importer, 'Quelle' %><br />
+    <%= f.select('importer', options_for_select(AccountImporter::TYPES.map { |i| [i, i] }, 'Saldomat')) %><br />
+  </p>
+  
   <p>
     <%= f.label :feed, 'Lokale Saldomat RSS-Feed URL' %><br />
     <%= f.text_field :feed %>

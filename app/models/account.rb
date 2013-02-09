@@ -12,16 +12,20 @@ class Account < ActiveRecord::Base
   
   validates_presence_of :title, :message => "Bitte geben Sie dem Konto einen Namen!"
   validates_uniqueness_of :title, :message => "Dieser Kontoname wird bereits verwendet!"
-  validates_inclusion_of :importer, in: %w(Saldomat HBCI)
+  validates_inclusion_of :importer, in: AccountImporter::TYPES
+  
+  # HACK -- reusing saldomat's field to store the outbank file
+  def outbank_file_name
+    self.feed
+  end
   
   def import_from_feed(feed_file = nil)
     importer = AccountImporter.for(self.importer)
     options = {
       # when an rss_file is given, parse that, else fetch the feed. That's useful for testing.
       # FIXME this will move to AccountImporter::Saldomat
-      feed_file: open(feed_file || self.feed),
-      account_id: self.id
+      feed_file: open(feed_file || self.feed)
     }
-    importer.new(options).import!
+    importer.new(account, options).import!
   end
 end
