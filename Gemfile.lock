@@ -1,3 +1,11 @@
+GIT
+  remote: git://github.com/phillipoertel/outbanker.git
+  revision: 122aa19077e7df8ccffea9af63ad25637e694b0e
+  specs:
+    outbanker (0.0.1)
+      rake
+      turn
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -28,6 +36,7 @@ GEM
     activesupport (3.2.11)
       i18n (~> 0.6)
       multi_json (~> 1.0)
+    ansi (1.4.3)
     arel (3.0.2)
     bcrypt-ruby (3.0.1)
     builder (3.0.4)
@@ -158,6 +167,8 @@ GEM
     treetop (1.4.12)
       polyglot
       polyglot (>= 0.3.1)
+    turn (0.9.6)
+      ansi
     tzinfo (0.3.35)
     warden (1.0.5)
       rack (>= 1.0)
@@ -176,6 +187,7 @@ DEPENDENCIES
   feedzirra
   fuubar
   mysql2
+  outbanker!
   rails
   rspec-rails
   thin

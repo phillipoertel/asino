@@ -4,6 +4,7 @@ gem 'rails'
 gem 'devise'
 gem 'mysql2'
 gem 'feedzirra'
+gem 'outbanker', :git => 'git://github.com/phillipoertel/outbanker.git'
 
 group :development do
    # a thin and *fast* server for development: http://code.macournoyer.com/thin/
