@@ -1,44 +1,32 @@
-<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
 
-<div class="column right">
 <h1>Zahlung bearbeiten</h1>
 
 <%= form_for(@item) do |f| %>
   <%= error_messages_for @item %>
 
-  <div style="width:400px;float:left;">
-  <p>
-    <%= f.label :amount, 'Betrag' %><br />
-    <%= f.text_field :amount, :size => 60 %>
-  </p>
-  <p>
-    <%= f.label :payee, 'Empfänger' %><br />
-    <%= f.text_field :payee, :size => 60 %>
-  </p>
-  <p>
-    <%= f.label :description, 'Beschreibung' %><br />
-    <%= f.text_field :description, :size => 60 %>
-  </p>
-  <p>
-    <%= f.label :category_id, 'Kategorie' %><br />
-    <%= f.collection_select(:category_id, Category.all(:order => 'name'), :id, :name, {:include_blank => true}) %>
-  </p>
-  </div>
-  <div style="width:400px;float:left;">
-  <p>
-	<%= f.check_box :transfer %>
-    <%= f.label :transfer, 'Zahlung ist Transfer zwischen eigenen Konten' %>
-  </p>
-  <p>
-	<%= f.check_box :fix %>
-    <%= f.label :fix, 'Zahlung gehört zu monatlichen Fixkosten' %>
-  </p>
-  </div>
-  <div class="clr"></div>
-  <p>
-    <%= f.submit 'Speichern' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
+
+  <%= f.label :amount, 'Betrag' %>
+  <%= f.text_field :amount, :size => 60 %>
+  <span class="muted va">Negative values for expenses!</span>
+
+  <%= f.label :payee, 'Empfänger' %>
+  <%= f.text_field :payee, :size => 60 %>
+
+  <%= f.label :description, 'Beschreibung' %>
+  <%= f.text_field :description, :size => 60 %>
+
+  <%= f.label :category_id, 'Kategorie' %>
+  <%= f.collection_select(:category_id, Category.all(:order => 'name'), :id, :name, {:include_blank => true}) %>
+
+  <%= f.label :transfer, :class => 'checkbox'  do %>
+    <%= f.check_box :transfer %> Zahlung ist Transfer zwischen eigenen Konten
+  <% end %>
+
+  <%= f.label :fix, :class => 'checkbox'  do %>
+    <%= f.check_box :fix %> Zahlung gehört zu monatlichen Fixkosten
+  <% end %>
+
+  <p class="m20">
+    <%= f.submit 'Speichern', :class => 'btn btn-primary' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
   </p>
 <% end %>
-</div>
-
-<div class="clr"></div>

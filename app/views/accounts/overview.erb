@@ -1,6 +1,4 @@
-<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
 
-<div class="column right" style="width:80%;">
   <h1>
   	<%= link_to image_tag('icons/left.png'), "#{request.path}?month=#{@month - 1}", 
   	                    :title => l((@startdate - 1.month), :format => :monthname) %>
@@ -9,7 +7,7 @@
   	                    :title => l((@startdate + 1.month), :format => :monthname) %>
   </h1>
 
-  <canvas id="expenseGraph" width="400" height="550">
+  <canvas id="expenseGraph" width="390" height="500">
       [Ihr Internetbroswer unterstützt kein Canvas Objekt.]
   </canvas>
   <script>
@@ -36,7 +34,7 @@
       }
   </script>
   
-  <canvas id="incomeGraph" width="400" height="550">
+  <canvas id="incomeGraph" width="390" height="500">
       [Ihr Internetbroswer unterstützt kein Canvas Objekt.]
   </canvas>
   
@@ -97,11 +95,5 @@
 	</tr>  
   </table>
  
-  <div class="clr"></div>
-  
-  <div class="m20"></div>
-  
-</div>
 
-<div class="clr"></div>
 

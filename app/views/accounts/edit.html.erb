@@ -1,26 +1,20 @@
-<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
-<div class="column right">
 
 <h1>Konto bearbeiten</h1>
 
 <%= form_for(@account) do |f| %>
   <%= error_messages_for @account %>
 
-  <p>
-    <%= f.label :title, 'Name des Kontos' %><br />
-    <%= f.text_field :title %>
-  </p>
-  <p>
-    <%= f.label :feed, 'Lokale Saldomat RSS-Feed URL' %><br />
-    <%= f.text_field :feed %>
-  </p>
-  <p>
-    <%= f.submit 'Speichern' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
+  <%= f.label :title, 'Name des Kontos' %>
+  <%= f.text_field :title %>
+
+  <%= f.label :feed, 'Lokale Saldomat RSS-Feed URL' %>
+  <%= f.text_field :feed %>
+
+  <p class="m20">
+    <%= f.submit 'Speichern', :class => 'btn btn-primary' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
   </p>
 <% end %>
+
 <div class="action">
 	<%= link_to 'Konto löschen', account_path(@account.id), :method => :delete, :confirm => 'Das Konto mit allen Umsätzen wir gelöscht. Sind Sie sicher?' %>
 </div>
-</div>
-
-<div class="clr"> </div>

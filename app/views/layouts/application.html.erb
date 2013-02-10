@@ -1,67 +1,91 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-  <title>asino - Privates Finanzmanagement</title>
-  <%= stylesheet_link_tag "application", :media => "all" %>
-  <%= javascript_include_tag "application" %>
-  <%= javascript_include_tag "rgraph/rgraph"  if @include_graph_scripts %>
-     
-  <link  href="http://fonts.googleapis.com/css?family=Reenie+Beanie:regular" rel="stylesheet" type="text/css" />            
-</head>
-<body data-initializer="<%= controller.controller_name.camelize + controller.action_name.camelize %>">
-    
-  <div class="main">
-      
-    <div id="navigation">
-      <ul>
-        <li <%= request.path == '/' ? 'class=active' : ''%>>
-          <%= link_to 'Home', '/' %>
-        </li>
-        <% if user_signed_in? %>
-          <li <%= request.path != '/' && controller.controller_name == 'accounts' && %w(index show).include?(controller.action_name) ? 'class=active' : ''%>>
-            <%= link_to 'Zahlungen', "/accounts/#{@account.id}" if @account %>
-            <%= link_to 'Zahlungen', "/accounts" unless @account %>
-          </li>
-          <%= li_menu('accounts', 'overview') %>
-            <%= link_to 'Ausgaben', "/accounts/#{@account.id}/overview" if @account %>
-            <%= link_to 'Ausgaben', "/accounts/overview" unless @account %>
-          </li>
-          <% if Account.count > 0 %>
-          <%= li_menu('accounts', 'course') %>
-            <%= link_to 'Verlauf', "/accounts/#{@account.id}/course" if @account %>
-            <%= link_to 'Verlauf', "/accounts/course" unless @account %>
-          </li>
-          <% end %>
-          <%= li_menu 'categories' %>
-            <%= link_to 'Kategorien', categories_path %>
-          </li>
-          <%= li_menu 'rulesets' %>
-            <%= link_to 'Regeln', rulesets_path %>
-          </li>
-          <li><%= link_to 'Sicherung', "/backups" %><%= raw '<span class="badge">!</span>' if current_user.should_backup? %></li>
-          <li>
-            <%= link_to 'Aktualisieren', "/items/get_from_rss" %>
-          </li>
-          <li>
-            <%= link_to 'Abmelden', destroy_user_session_path %>
-          </li>
-        <% else %>
-          <li><%= link_to 'Anmelden', new_user_session_path %></li>
-          <li><%= link_to 'Registrieren', new_user_registration_path %></li>
-        <% end %>
-      </ul>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>asino - Privates Finanzmanagement</title>
+    <%= csrf_meta_tags %>
+
+    <%= stylesheet_link_tag "application", :media => "all" %>
+
+    <%= javascript_include_tag "application" %>
+    <%= javascript_include_tag "rgraph/rgraph"  if @include_graph_scripts %>
+
+    <%= favicon_link_tag '/assets/favicon.ico', :rel => 'shortcut icon' %>
+  </head>
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">asino</a>
+          <div class="container nav-collapse">
+            <ul class="nav" role="navigation">
+              <li class="dropdown">
+                <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Konten <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><%= link_to 'Alle Konten', accounts_path %></li>
+                  <% @accounts.each do |acc| %>
+                    <li><%= link_to acc.title, acc, :class => "#{'active' if acc == @account}" %></li>
+                  <% end %>
+                  <li><%= link_to 'Neues Konto', new_account_path %></li>
+                </ul>
+              </li>
+              <% if user_signed_in? %>
+                <%= li_menu('accounts', 'overview') %>
+                  <%= link_to 'Ausgaben', "/accounts/#{@account.id}/overview" if @account %>
+                  <%= link_to 'Ausgaben', "/accounts/overview" unless @account %>
+                </li>
+                <% if Account.count > 0 %>
+                <%= li_menu('accounts', 'course') %>
+                  <%= link_to 'Verlauf', "/accounts/#{@account.id}/course" if @account %>
+                  <%= link_to 'Verlauf', "/accounts/course" unless @account %>
+                </li>
+                <% end %>
+                <%= li_menu 'categories' %>
+                  <%= link_to 'Kategorien', categories_path %>
+                </li>
+                <%= li_menu 'rulesets' %>
+                  <%= link_to 'Regeln', rulesets_path %>
+                </li>
+                <li><%= link_to raw("Sicherung#{' <span class="badge badge-important">!</span>' if current_user.should_backup?}"), "/backups" %></li>
+                <li>
+                  <%= link_to 'Aktualisieren', "/items/get_from_rss" %>
+                </li>
+                <li>
+                  <%= link_to 'Abmelden', destroy_user_session_path %>
+                </li>
+              <% else %>
+                <li><%= link_to 'Anmelden', new_user_session_path %></li>
+                <li><%= link_to 'Registrieren', new_user_registration_path %></li>
+              <% end %>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
     </div>
 
-    <%= render 'layouts/flash' %>
+    <div class="container">
 
-    <%= yield %>
+      <%= render :partial => 'layouts/flash' %>
+      
+      <div class="row">
+        <div class="span12">
+           <%= yield %>
+        </div>
+      </div><!--/row-->
 
-  </div>
+    </div> <!-- /container -->
 
-  <div id="footer">
-	  <%= link_to 'asino source on github', 'http://github.com/agehret/asino' %>
-  </div>
-  
-</body>
+    <footer>
+      <%= link_to 'asino source on github', 'http://github.com/agehret/asino' %>
+    </footer>
+
+  </body>
 </html>

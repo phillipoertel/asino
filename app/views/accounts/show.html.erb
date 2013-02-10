@@ -1,6 +1,5 @@
-<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
 
-<div class="column right">
+<div>
   <table>
 	  <tr>
 		<td class="al em" colspan="3" rowspan="2">
@@ -14,10 +13,12 @@
           	<% end %>
             </h1>
 			<div style="padding:10px 0px 5px 0px;display:block;">
-			  <%= form_tag(search_accounts_path, :method => :get) do |f| %>
-			  <input type="search" name="term" size="20">
-			  <input type="hidden" name="account_id" value="<%= @account.id if @account %>">
-			  <%= submit_tag 'Suche', :class => 'small' %>
+			  <%= form_tag(search_accounts_path, :method => :get, :class => "form-search") do |f| %>
+          <div class="input-append">
+			      <input type="search" name="term" size="20" class="span2 search-query">
+			      <input type="hidden" name="account_id" value="<%= @account.id if @account %>">
+			      <%= submit_tag 'Suche', :class => 'btn' %>
+          </div>
 			  <% end %>
 			</div>
 		</td>
@@ -62,49 +63,47 @@
   		</td>
   		<td></td>
       </tr>
-	  <tr>
-		<th class="ar">
-          <%= sortlink('Datum', 'date') %>
-		</th>
-		<th class="al">
-		  <%= sortlink('Empfänger', 'payee') %>
-		</th>
-		<th class="al">
-          <%= sortlink('Beschreibung', 'descr') %>
-		</th>
-		<th class="al"><%= 'Konto' unless @account %></th>
-		<th class="ar">
-		  <%= sortlink('Saldo', 'saldo') %>
-		</th>
-		<th class="al">
-		  Kategorie
-		</th>
-		<th style="width:60px;"></th>
-	  </tr>
-    <% @items.each do |item| %>
-      <%= render :partial => 'items/item_row' , :locals => {:item => item, :account => @account }%>
-    <% end %>
-    <% if @items.empty? %>
-      <tr>
-	    <td colspan="7">
-		  Für dieses Konto wurden noch keine Zahlungen eingegeben.
-		  <% if @account %>
-		    <div class="m20">
-		      <%= link_to 'Neue Zahlung eingeben', new_account_item_path(@account), :class => 'button' %>
-		      <% unless @account.feed.blank? %>
-		        oder <%= link_to 'Zahlungen von Saldomat übernehmen', "/items/get_from_rss", :class => 'button' %>
+    </table>
+
+
+
+    <table class="table">
+      <thead>
+	      <tr>
+		      <th class="ar"><%= sortlink('Datum', 'date') %></th>
+		      <th class="al"><%= sortlink('Empfänger', 'payee') %></th>
+		      <th class="al"><%= sortlink('Beschreibung', 'descr') %></th>
+		      <th class="al"><%= 'Konto' unless @account %></th>
+		      <th class="ar"><%= sortlink('Saldo', 'saldo') %></th>
+		      <th class="al">Kategorie</th>
+		      <th style="width:60px;"></th>
+	      </tr>
+      </thead>
+      <tbody>
+        <% @items.each do |item| %>
+          <%= render :partial => 'items/item_row' , :locals => {:item => item, :account => @account }%>
+        <% end %>
+        <% if @items.empty? %>
+        <tr>
+	        <td colspan="7">
+		      Für dieses Konto wurden noch keine Zahlungen eingegeben.
+		      <% if @account %>
+		        <div class="m20">
+		          <%= link_to 'Neue Zahlung eingeben', new_account_item_path(@account), :class => 'button' %>
+		          <% unless @account.feed.blank? %>
+		            oder <%= link_to 'Zahlungen von Saldomat übernehmen', "/items/get_from_rss", :class => 'button' %>
+		          <% end %>
+		        </div>
 		      <% end %>
-		    </div>
-		  <% end %>
-	    </td>
-	  </tr>
-    <% end %>
-  </table>
+	        </td>
+	      </tr>
+        <% end %>
+      </tbody>
+    </table>
+
   <div class="action">
 	<%= link_to 'Konto bearbeiten', edit_account_path(@account.id) if @account %>
   </div>
 </div>
 
 <div class="clr"></div>
-
-<div id="note" style="display:none;">Note</div>
