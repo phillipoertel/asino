@@ -45,7 +45,7 @@
   
           var i = new RGraph.Pie('incomeGraph', [<%= @income_categories.collect {|m| m.sum * -1}.join(',') %>]);
           i.Set('chart.title', 'Einnahmen')
-          i.Set('chart.labels', ['<%= @income_categories.collect {|d| "#{d.percent}% #{d.name}" if d.percent > 0.5}.join("','") %>']);
+          i.Set('chart.labels', ['<%= raw @income_categories.collect {|d| "#{d.percent}% #{d.name}" if d.percent > 0.5}.join("','") %>']);
           i.Set('chart.gutter', 120)
           i.Set('chart.linewidth', 1);
           i.Set('chart.stroke', '#fff');
