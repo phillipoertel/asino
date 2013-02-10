@@ -29,6 +29,9 @@
         this.canvas.__object__ = this;
         this.type              = 'rose';
         this.isRGraph          = true;
+        this.uid               = RGraph.CreateUID();
+        this.canvas.uid        = this.canvas.uid ? this.canvas.uid : RGraph.CreateUID();
+        this.colorsParsed      = false;
 
 
         /**
@@ -40,36 +43,70 @@
         this.centerx = 0;
         this.centery = 0;
         this.radius  = 0;
-
         this.max     = 0;
+        this.angles  = [];
         
         this.properties = {
-            'chart.colors':                 ['rgb(255,0,0)', 'rgb(0,255,255)', 'rgb(0,255,0)', 'rgb(127,127,127)', 'rgb(0,0,255)', 'rgb(255,128,255)'],
+            'chart.background.axes':        true,
+            'chart.background.axes.color':  'black',
+            'chart.background.grid':        true,
+            'chart.background.grid.color':  '#ccc',
+            'chart.background.grid.size':   null,
+            'chart.background.grid.spokes': null,
+            'chart.background.grid.count':  5,
+            'chart.centerx':                null,
+            'chart.centery':                null,
+            'chart.radius':                 null,
+            'chart.colors':                 ['rgba(255,0,0,0.5)', 'rgba(255,255,0,0.5)', 'rgba(0,255,255,0.5)', 'rgb(0,255,0)', 'gray', 'blue', 'rgb(255,128,255)','green', 'pink', 'gray', 'aqua'],
+            'chart.colors.sequential':      false,
             'chart.colors.alpha':           null,
-            'chart.strokestyle':            'black',
-            'chart.gutter':                 25,
+            'chart.margin':                 0,
+            'chart.strokestyle':            '#aaa',
+            'chart.gutter.left':            25,
+            'chart.gutter.right':           25,
+            'chart.gutter.top':             25,
+            'chart.gutter.bottom':          25,
             'chart.title':                  '',
+            'chart.title.background':       null,
             'chart.title.hpos':             null,
             'chart.title.vpos':             null,
+            'chart.title.bold':             true,
+            'chart.title.font':             null,
+            'chart.title.x':                null,
+            'chart.title.y':                null,
+            'chart.title.halign':           null,
+            'chart.title.valign':           null,
             'chart.labels':                 null,
             'chart.labels.position':       'center',
             'chart.labels.axes':            'nsew',
+            'chart.labels.offset':          0,
             'chart.text.color':             'black',
-            'chart.text.font':              'Verdana',
+            'chart.text.font':              'Arial',
             'chart.text.size':              10,
             'chart.key':                    null,
+            'chart.key.background':         'white',
+            'chart.key.position':           'graph',
+            'chart.key.halign':             'right',
             'chart.key.shadow':             false,
             'chart.key.shadow.color':       '#666',
             'chart.key.shadow.blur':        3,
             'chart.key.shadow.offsetx':     2,
             'chart.key.shadow.offsety':     2,
-            'chart.key.background':         'white',
-            'chart.key.position':           'graph',
+            'chart.key.position.gutter.boxed': true,
+            'chart.key.position.x':         null,
+            'chart.key.position.y':         null,
+            'chart.key.color.shape':        'square',
+            'chart.key.rounded':            true,
+            'chart.key.linewidth':          1,
+            'chart.key.colors':             null,
             'chart.contextmenu':            null,
             'chart.tooltips':               null,
-            'chart.tooltips.effect':         'fade',
-            'chart.tooltips.css.class':      'RGraph_tooltip',
+            'chart.tooltips.event':         'onclick',
+            'chart.tooltips.effect':        'fade',
+            'chart.tooltips.css.class':     'RGraph_tooltip',
             'chart.tooltips.highlight':     true,
+            'chart.highlight.stroke':       'rgba(0,0,0,0)',
+            'chart.highlight.fill':         'rgba(255,255,255,0.7)',
             'chart.annotatable':            false,
             'chart.annotate.color':         'black',
             'chart.zoom.factor':            1.5,
@@ -77,25 +114,57 @@
             'chart.zoom.fade.out':          true,
             'chart.zoom.hdir':              'right',
             'chart.zoom.vdir':              'down',
-            'chart.zoom.frames':            10,
-            'chart.zoom.delay':             50,
+            'chart.zoom.frames':            25,
+            'chart.zoom.delay':             16.666,
             'chart.zoom.shadow':            true,
-            'chart.zoom.mode':              'canvas',
-            'chart.zoom.thumbnail.width':   75,
-            'chart.zoom.thumbnail.height':  75,
             'chart.zoom.background':        true,
             'chart.zoom.action':            'zoom',
             'chart.resizable':              false,
+            'chart.resize.handle.adjust':   [0,0],
+            'chart.resize.handle.background': null,
             'chart.adjustable':             false,
             'chart.ymax':                   null,
             'chart.ymin':                   0,
-            'chart.scale.decimals':         null
+            'chart.scale.decimals':         null,
+            'chart.scale.point':            '.',
+            'chart.scale.thousand':         ',',
+            'chart.variant':                'stacked',
+            'chart.exploded':               0,
+            'chart.events.mousemove':       null,
+            'chart.events.click':           null,
+            'chart.animation.roundrobin.factor':  1,
+            'chart.animation.roundrobin.radius': true,
+            'chart.animation.grow.multiplier': 1
         }
-        
-        // Check the common library has been included
-        if (typeof(RGraph) == 'undefined') {
-            alert('[ROSE] Fatal error: The common library does not appear to have been included');
+
+
+
+        /**
+        * Create the $ objects. In the case of non-equi-angular rose charts it actually creates too many $ objects,
+        * but it doesn't matter.
+        */
+        var linear_data = RGraph.array_linearize(this.data);
+        for (var i=0; i<linear_data.length; ++i) {
+            this["$" + i] = {}
         }
+
+
+        /**
+        * Translate half a pixel for antialiasing purposes - but only if it hasn't beeen
+        * done already
+        */
+        if (!this.canvas.__rgraph_aa_translated__) {
+            this.context.translate(0.5,0.5);
+            
+            this.canvas.__rgraph_aa_translated__ = true;
+        }
+
+
+
+        /**
+        * Register this object
+        */
+        RGraph.Register(this);
     }
 
 
@@ -107,7 +176,15 @@
     */
     RGraph.Rose.prototype.Set = function (name, value)
     {
+        /**
+        * This should be done first - prepend the propertyy name with "chart." if necessary
+        */
+        if (name.substr(0,6) != 'chart.') {
+            name = 'chart.' + name;
+        }
+
         this.properties[name.toLowerCase()] = value;
+
     }
     
     
@@ -118,6 +195,13 @@
     */
     RGraph.Rose.prototype.Get = function (name)
     {
+        /**
+        * This should be done first - prepend the property name with "chart." if necessary
+        */
+        if (name.substr(0,6) != 'chart.') {
+            name = 'chart.' + name;
+        }
+
         return this.properties[name.toLowerCase()];
     }
 
@@ -131,16 +215,21 @@
         * Fire the onbeforedraw event
         */
         RGraph.FireCustomEvent(this, 'onbeforedraw');
-        
+
+
+
         /**
-        * Clear all of this canvases event handlers (the ones installed by RGraph)
+        * This doesn't affect the chart, but is used for compatibility
         */
-        RGraph.ClearEventListeners(this.id);
+        this.gutterLeft   = this.Get('chart.gutter.left');
+        this.gutterRight  = this.Get('chart.gutter.right');
+        this.gutterTop    = this.Get('chart.gutter.top');
+        this.gutterBottom = this.Get('chart.gutter.bottom');
 
         // Calculate the radius
-        this.radius       = (Math.min(this.canvas.width, this.canvas.height) / 2);
-        this.centerx      = this.canvas.width / 2;
-        this.centery      = this.canvas.height / 2;
+        this.radius       = (Math.min(this.canvas.width - this.gutterLeft - this.gutterRight, this.canvas.height - this.gutterTop - this.gutterBottom) / 2);
+        this.centerx      = ((this.canvas.width - this.gutterLeft - this.gutterRight) / 2) + this.gutterLeft;
+        this.centery      = ((this.canvas.height - this.gutterTop - this.gutterBottom) / 2) + this.gutterTop;
         this.angles       = [];
         this.total        = 0;
         this.startRadians = 0;
@@ -149,7 +238,25 @@
         * Change the centerx marginally if the key is defined
         */
         if (this.Get('chart.key') && this.Get('chart.key').length > 0 && this.Get('chart.key').length >= 3) {
-            this.centerx = this.centerx - this.Get('chart.gutter') + 5;
+            this.centerx = this.centerx - this.Get('chart.gutter.right') + 5;
+        }
+
+
+
+        // User specified radius, centerx and centery
+        if (typeof(this.Get('chart.centerx')) == 'number') this.centerx = this.Get('chart.centerx');
+        if (typeof(this.Get('chart.centery')) == 'number') this.centery = this.Get('chart.centery');
+        if (typeof(this.Get('chart.radius')) == 'number')  this.radius  = this.Get('chart.radius');
+
+        /**
+        * Parse the colors for gradients. Its down here so that the center X/Y can be used
+        */
+        if (!this.colorsParsed) {
+
+            this.parseColors();
+
+            // Don't want to do this again
+            this.colorsParsed = true;
         }
 
         this.DrawBackground();
@@ -161,95 +268,6 @@
         */
         if (this.Get('chart.contextmenu')) {
             RGraph.ShowContext(this);
-        }
-
-        /**
-        * Tooltips
-        */
-        if (this.Get('chart.tooltips')) {
-
-            /**
-            * Register this object for redrawing
-            */
-            RGraph.Register(this);
-        
-            /**
-            * The onclick event
-            */
-            var canvas_onclick_func = function (e)
-            {
-                var obj     = e.target.__object__;
-                var canvas  = e.target;
-                var context = canvas.getContext('2d');
-
-                e = RGraph.FixEventObject(e);
-
-                RGraph.Redraw();
-                
-                var segment = RGraph.getSegment(e);
-                if (segment && obj.Get('chart.tooltips')[segment[5]]) {
-                    context.beginPath();
-                        context.strokeStyle = 'black';
-                        context.fillStyle = 'rgba(255,255,255,0.5)';
-                        context.arc(segment[0], segment[1], segment[2], segment[3] / 57.3, segment[4] / 57.3, false);
-                        context.lineTo(obj.centerx, obj.centery);
-                    context.closePath();
-                    context.fill();
-                    context.stroke();
-                    
-                    context.strokeStyle = 'rgba(0,0,0,0)';
-                    obj.DrawLabels();
-                    
-                    /**
-                    * Show the tooltip
-                    */
-                    RGraph.Tooltip(canvas, obj.Get('chart.tooltips')[segment[5]], e.pageX, e.pageY, segment[5]);
-
-                    e.stopPropagation();
-
-                    return;
-                }
-            }
-            this.canvas.addEventListener('click', canvas_onclick_func, false);
-            RGraph.AddEventListener(this.id, 'click', canvas_onclick_func);
-
-
-            /**
-            * The onmousemove event
-            */
-            var canvas_onmousemove_func = function (e)
-            {
-                var obj     = e.target.__object__;
-                var canvas  = e.target;
-                var context = canvas.getContext('2d');
-
-                e = RGraph.FixEventObject(e);
-                
-                var segment = RGraph.getSegment(e);
-
-                if (segment && obj.Get('chart.tooltips')[segment[5]]) {
-                    canvas.style.cursor = 'pointer';
-                    return;
-                }
-
-                canvas.style.cursor = 'default';
-            }
-            this.canvas.addEventListener('mousemove', canvas_onmousemove_func, false);
-            RGraph.AddEventListener(this.id, 'mousemove', canvas_onmousemove_func);
-        }
-        
-        /**
-        * If the canvas is annotatable, do install the event handlers
-        */
-        if (this.Get('chart.annotatable')) {
-            RGraph.Annotate(this);
-        }
-        
-        /**
-        * This bit shows the mini zoom window if requested
-        */
-        if (this.Get('chart.zoom.mode') == 'thumbnail' || this.Get('chart.zoom.mode') == 'area') {
-            RGraph.ShowZoomWindow(this);
         }
 
         
@@ -267,7 +285,14 @@
         if (this.Get('chart.adjustable')) {
             RGraph.AllowAdjusting(this);
         }
-        
+
+
+        /**
+        * This installs the event listeners
+        */
+        RGraph.InstallEventListeners(this);
+
+
         /**
         * Fire the RGraph ondraw event
         */
@@ -280,86 +305,153 @@
     RGraph.Rose.prototype.DrawBackground = function ()
     {
         this.context.lineWidth = 1;
-    
-        // Draw the background grey circles
-        this.context.strokeStyle = '#ccc';
-        for (var i=15; i<this.radius - this.Get('chart.gutter') - (document.all ? 5 : 0); i+=15) {// Radius must be greater than 0 for Opera to work
-            //this.context.moveTo(this.centerx + i, this.centery);
-    
-            // Radius must be greater than 0 for Opera to work
-            this.context.arc(this.centerx, this.centery, i, 0, (2 * Math.PI), 0);
-        }
-        this.context.stroke();
 
-        // Draw the background lines that go from the center outwards
-        this.context.beginPath();
-        for (var i=15; i<360; i+=15) {
+
+
+
+
+        // Draw the background grey circles/spokes
+        if (this.properties['chart.background.grid']) {
+            if (typeof(this.properties['chart.background.grid.count']) == 'number') {
+                this.properties['chart.background.grid.size'] = this.radius / this.properties['chart.background.grid.count'];
+            }
+    
+            this.context.beginPath();
+                this.context.strokeStyle = this.properties['chart.background.grid.color'];
+                
+                // Radius must be greater than 0 for Opera to work
+                for (var i=this.properties['chart.background.grid.size']; i<=this.radius; i+=this.properties['chart.background.grid.size']) {
+                    
+                    //this.context.moveTo(this.centerx + i, this.centery);
         
-            // Radius must be greater than 0 for Opera to work
-            this.context.arc(this.centerx, this.centery, this.radius - this.Get('chart.gutter'), i / 57.3, (i + 0.1) / 57.3, 0); // The 0.01 avoids a bug in Chrome 6
-        
-            this.context.lineTo(this.centerx, this.centery);
+                    // Radius must be greater than 0 for Opera to work
+                    this.context.arc(this.centerx,
+                                     this.centery,
+                                     i,
+                                     0,
+                                     TWOPI,
+                                     false);
+                }
+            this.context.stroke();
+
+
+
+
+
+
+            // Draw the background lines that go from the center outwards
+            this.context.beginPath();
+                if (typeof(this.properties['chart.background.grid.spokes']) == 'number') {
+                    
+                    var num = (360 / this.properties['chart.background.grid.spokes']);
+    
+                    for (var i=num; i<=360; i+=num) {
+                    
+                        // Radius must be greater than 0 for Opera to work
+                        this.context.arc(this.centerx,
+                                         this.centery,
+                                         this.radius,
+                                         (i / (180 / PI)) - HALFPI,
+                                         ((i + 0.0001) / (180 / PI)) - HALFPI,
+                                         0);
+    
+                        this.context.lineTo(this.centerx, this.centery);
+                    }
+                } else {
+                    for (var i=15; i<=360; i+=15) {
+                    
+                        // Radius must be greater than 0 for Opera to work
+                        this.context.arc(this.centerx,
+                                         this.centery,
+                                         this.radius,
+                                         (i / (180/ PI)) - HALFPI,
+                                         ((i + 0.0001) / (180/ PI)) - HALFPI,
+                                         false);
+                    
+                        this.context.lineTo(this.centerx, this.centery);
+                    }
+                }
+            this.context.stroke();
         }
-        this.context.stroke();
+
+
+
+        if (this.Get('chart.background.axes')) {
+            this.context.beginPath();
+            this.context.strokeStyle = this.Get('chart.background.axes.color');
         
-        this.context.beginPath();
-        this.context.strokeStyle = 'black';
-    
-        // Draw the X axis
-        this.context.moveTo(this.centerx - this.radius + this.Get('chart.gutter'), this.centery);
-        this.context.lineTo(this.centerx + this.radius - this.Get('chart.gutter'), this.centery);
-    
-        // Draw the X ends
-        this.context.moveTo(this.centerx - this.radius + this.Get('chart.gutter'), this.centery - 5);
-        this.context.lineTo(this.centerx - this.radius + this.Get('chart.gutter'), this.centery + 5);
-        this.context.moveTo(this.centerx + this.radius - this.Get('chart.gutter'), this.centery - 5);
-        this.context.lineTo(this.centerx + this.radius - this.Get('chart.gutter'), this.centery + 5);
+            // Draw the X axis
+            this.context.moveTo(this.centerx - this.radius, Math.round(this.centery) );
+            this.context.lineTo(this.centerx + this.radius, Math.round(this.centery) );
         
-        // Draw the X check marks
-        for (var i=(this.centerx - this.radius + this.Get('chart.gutter')); i<(this.centerx + this.radius - this.Get('chart.gutter')); i+=20) {
-            this.context.moveTo(i,  this.centery - 3);
-            this.context.lineTo(i,  this.centery + 3);
+            // Draw the X ends
+            this.context.moveTo(Math.round(this.centerx - this.radius), this.centery - 5);
+            this.context.lineTo(Math.round(this.centerx - this.radius), this.centery + 5);
+            this.context.moveTo(Math.round(this.centerx + this.radius), this.centery - 5);
+            this.context.lineTo(Math.round(this.centerx + this.radius), this.centery + 5);
+            
+            // Draw the X check marks
+            for (var i=(this.centerx - this.radius); i<(this.centerx + this.radius); i+=(this.radius / 5)) {
+                this.context.moveTo(Math.round(i),  this.centery - 3);
+                this.context.lineTo(Math.round(i),  this.centery + 3.5);
+            }
+            
+            // Draw the Y check marks
+            for (var i=(this.centery - this.radius); i<(this.centery + this.radius); i+=(this.radius / 5)) {
+                this.context.moveTo(this.centerx - 3, Math.round(i));
+                this.context.lineTo(this.centerx + 3, Math.round(i));
+            }
+        
+            // Draw the Y axis
+            this.context.moveTo(Math.round(this.centerx), this.centery - this.radius);
+            this.context.lineTo(Math.round(this.centerx), this.centery + this.radius);
+        
+            // Draw the Y ends
+            this.context.moveTo(this.centerx - 5, Math.round(this.centery - this.radius));
+            this.context.lineTo(this.centerx + 5, Math.round(this.centery - this.radius));
+        
+            this.context.moveTo(this.centerx - 5, Math.round(this.centery + this.radius));
+            this.context.lineTo(this.centerx + 5, Math.round(this.centery + this.radius));
+            
+            // Stroke it
+            this.context.closePath();
+            this.context.stroke();
         }
-        
-        // Draw the Y check marks
-        for (var i=(this.centery - this.radius + this.Get('chart.gutter')); i<(this.centery + this.radius - this.Get('chart.gutter')); i+=20) {
-            this.context.moveTo(this.centerx - 3, i);
-            this.context.lineTo(this.centerx + 3, i);
-        }
-    
-        // Draw the Y axis
-        this.context.moveTo(this.centerx, this.centery - this.radius + this.Get('chart.gutter'));
-        this.context.lineTo(this.centerx, this.centery + this.radius - this.Get('chart.gutter'));
-    
-        // Draw the Y ends
-        this.context.moveTo(this.centerx - 5, this.centery - this.radius + this.Get('chart.gutter'));
-        this.context.lineTo(this.centerx + 5, this.centery - this.radius + this.Get('chart.gutter'));
-    
-        this.context.moveTo(this.centerx - 5, this.centery + this.radius - this.Get('chart.gutter'));
-        this.context.lineTo(this.centerx + 5, this.centery + this.radius - this.Get('chart.gutter'));
-        
-        // Stroke it
-        this.context.closePath();
-        this.context.stroke();
     }
 
 
+
     /**
-    * This method draws a set of data on the graph
+    * This method draws the data on the graph
     */
     RGraph.Rose.prototype.DrawRose = function ()
     {
+        var max  = 0;
         var data = this.data;
+        var margin = RGraph.degrees2Radians(this.Get('chart.margin'));
 
         // Must be at least two data points
-        if (data.length < 2) {
-            alert('[ROSE] Must be at least two data points! [' + data + ']');
-            return;
-        }
+        //if (data.length < 2) {
+        //    alert('[ROSE] Must be at least two data points! [' + data + ']');
+        //    return;
+        //}
     
         // Work out the maximum value and the sum
         if (!this.Get('chart.ymax')) {
-            this.scale = RGraph.getScale(RGraph.array_max(data), this);
+            // Work out the max
+            for (var i=0; i<data.length; ++i) {
+                if (typeof(data[i]) == 'number') {
+                    max = Math.max(max, data[i]);
+                } else if (typeof(data[i]) == 'object' && this.Get('chart.variant') == 'non-equi-angular') {
+                    max = Math.max(max, data[i][0]);
+                
+                // Fallback is stacked
+                } else {
+                    max = Math.max(max, RGraph.array_sum(data[i]));
+                }
+            }
+
+            this.scale = RGraph.getScale(max, this);
             this.max = this.scale[4];
         } else {
             var ymax = this.Get('chart.ymax');
@@ -370,7 +462,7 @@
                           ((ymax - ymin) * 0.4) + ymin,
                           ((ymax - ymin) * 0.6) + ymin,
                           ((ymax - ymin) * 0.8) + ymin,
-                          ((ymax - ymin) * 1 + ymin)
+                          ((ymax - ymin) * 1.0) + ymin
                          ];
             this.max = this.scale[4];
         }
@@ -387,35 +479,216 @@
             this.context.globalAlpha = this.Get('chart.colors.alpha');
         }
 
-        // Draw the Rose segments
-        for (var i=0; i<this.data.length; ++i) {
-
-            this.context.strokeStyle = this.Get('chart.strokestyle');
-            
-            if (this.Get('chart.colors')[i]) {
-                this.context.fillStyle = this.Get('chart.colors')[i];
+        /*******************************************************
+        * A non-equi-angular Rose chart
+        *******************************************************/
+        if (typeof(this.Get('chart.variant')) == 'string' && this.Get('chart.variant') == 'non-equi-angular') {
+            /*******************************************************
+            * NON-EQUI-ANGULAR GOES HERE
+            *******************************************************/
+            var total=0;
+            for (var i=0; i<data.length; ++i) {
+                total += data[i][1];
             }
-    
-            var segmentRadians = (1 / this.data.length) * (2 * Math.PI);
-    
-            this.context.beginPath(); // Begin the segment   
-
-                var radius = ((this.data[i] - this.Get('chart.ymin')) / (this.max - this.Get('chart.ymin'))) * (this.radius - this.Get('chart.gutter') - 10);
-
-                this.context.arc(this.centerx, this.centery, radius, this.startRadians - (Math.PI / 2), this.startRadians + segmentRadians - (Math.PI / 2), 0);
-                this.context.lineTo(this.centerx, this.centery);
-                this.context.fill();
-            this.context.closePath(); // End the segment
             
-            // Store the start and end angles
-            this.angles.push([
-                              ((this.startRadians - (Math.PI / 2)) * 57.3) + 90,
-                              (((this.startRadians + segmentRadians) - (Math.PI / 2)) * 57.3) + 90,
-                              radius
-                             ]);
+            
+            for (var i=0; i<this.data.length; ++i) {
+            
+                var segmentRadians = ((this.data[i][1] / total) * TWOPI);
+                var radius         = ((this.data[i][0] - this.Get('chart.ymin')) / (this.max - this.Get('chart.ymin'))) * this.radius;
+                    radius = radius * this.properties['chart.animation.grow.multiplier'];
 
-            this.startRadians += segmentRadians;
-            this.context.stroke();
+                this.context.strokeStyle = this.Get('chart.strokestyle');
+                this.context.fillStyle = this.Get('chart.colors')[0];
+
+                if (this.Get('chart.colors.sequential')) {
+                    this.context.fillStyle = this.Get('chart.colors')[i];
+                }
+
+                this.context.beginPath(); // Begin the segment
+
+                    var startAngle = (this.startRadians * this.Get('chart.animation.roundrobin.factor')) - HALFPI + margin;
+                    var endAngle   = ((this.startRadians + segmentRadians) * this.Get('chart.animation.roundrobin.factor')) - HALFPI - margin;
+
+                    var exploded  = this.getexploded(i, startAngle, endAngle, this.Get('chart.exploded'));
+                    var explodedX = exploded[0];
+                    var explodedY = exploded[1];
+
+
+                    this.context.arc(this.centerx + explodedX,
+                                     this.centery + explodedY,
+                                     this.Get('chart.animation.roundrobin.radius') ? radius * this.Get('chart.animation.roundrobin.factor') : radius,
+                                     startAngle,
+                                     endAngle,
+                                     0);
+                    this.context.lineTo(this.centerx + explodedX, this.centery + explodedY);
+                this.context.closePath(); // End the segment
+                
+                this.context.stroke();
+                this.context.fill();
+                
+                // Store the start and end angles
+
+                this.angles.push(gg = [
+                                  startAngle,
+                                  endAngle,
+                                  0,
+                                  radius,
+                                  this.centerx + explodedX,
+                                  this.centery + explodedY
+                                 ]);
+
+                this.startRadians += segmentRadians;
+            }
+        } else {
+        
+            var sequentialColorIndex = 0;
+        
+            /*******************************************************
+            * Draw regular segments here
+            *******************************************************/
+            for (var i=0; i<this.data.length; ++i) {
+
+                this.context.strokeStyle = this.Get('chart.strokestyle');
+                this.context.fillStyle = this.Get('chart.colors')[0];
+
+                /*******************************************************
+                * This allows sequential colors
+                *******************************************************/
+                if (this.Get('chart.colors.sequential')) {
+                    this.context.fillStyle = this.Get('chart.colors')[i];
+                }
+
+                var segmentRadians = (1 / this.data.length) * TWOPI;
+    
+                if (typeof(this.data[i]) == 'number') {
+                    this.context.beginPath(); // Begin the segment
+
+                        var radius = ((this.data[i] - this.Get('chart.ymin')) / (this.max - this.Get('chart.ymin'))) * this.radius;
+                            radius = radius * this.properties['chart.animation.grow.multiplier'];
+
+                        var startAngle = (this.startRadians * this.Get('chart.animation.roundrobin.factor')) - HALFPI + margin;
+                        var endAngle   = (this.startRadians * this.Get('chart.animation.roundrobin.factor')) + (segmentRadians * this.Get('chart.animation.roundrobin.factor')) - HALFPI - margin;
+
+                        var exploded  = this.getexploded(i, startAngle, endAngle, this.Get('chart.exploded'));
+                        var explodedX = exploded[0];
+                        var explodedY = exploded[1];
+
+                        this.context.arc(this.centerx + explodedX,
+                                         this.centery + explodedY,
+                                         this.Get('chart.animation.roundrobin.radius') ? radius * this.Get('chart.animation.roundrobin.factor') : radius,
+                                         startAngle,
+                                         endAngle,
+                                         0);
+                        this.context.lineTo(this.centerx + explodedX, this.centery + explodedY);
+                    this.context.closePath(); // End the segment
+                    this.context.stroke();
+                    this.context.fill();
+
+                    if (endAngle == 0) {
+                        //endAngle = TWOPI;
+                    }
+
+                    // Store the start and end angles
+                    this.angles.push([
+                                      startAngle,
+                                      endAngle,
+                                      0,
+                                      radius * this.Get('chart.animation.roundrobin.factor'),
+                                      this.centerx + explodedX,
+                                      this.centery + explodedY
+                                     ]);
+
+                /*******************************************************
+                * Draw a stacked segment
+                *******************************************************/
+                } else if (typeof(this.data[i]) == 'object') {
+                    
+                    var margin = this.Get('chart.margin') / (180 / PI);
+                    
+
+                    for (var j=0; j<this.data[i].length; ++j) {
+                    
+                        var startAngle = (this.startRadians * this.Get('chart.animation.roundrobin.factor')) - HALFPI + margin;
+                        var endAngle  = (this.startRadians * this.Get('chart.animation.roundrobin.factor'))+ (segmentRadians * this.Get('chart.animation.roundrobin.factor')) - HALFPI - margin;
+                    
+                        var exploded  = this.getexploded(i, startAngle, endAngle, this.Get('chart.exploded'));
+                        var explodedX = exploded[0];
+                        var explodedY = exploded[1];
+    
+                        this.context.fillStyle = this.Get('chart.colors')[j];
+
+                        // This facilitates sequential color support
+                        if (this.Get('chart.colors.sequential')) {
+                            this.context.fillStyle = this.Get('chart.colors')[sequentialColorIndex++];
+                        }
+
+                        if (j == 0) {
+                            this.context.beginPath(); // Begin the segment
+                                var startRadius = 0;
+                                var endRadius = ((this.data[i][j] - this.Get('chart.ymin')) / (this.max - this.Get('chart.ymin'))) * this.radius;
+                                    endRadius = endRadius * this.properties['chart.animation.grow.multiplier'];
+                    
+                                this.context.arc(this.centerx + explodedX,
+                                                 this.centery + explodedY,
+                                                 this.Get('chart.animation.roundrobin.radius') ? endRadius * this.Get('chart.animation.roundrobin.factor') : endRadius,
+                                                 startAngle,
+                                                 endAngle,
+                                                 0);
+                                this.context.lineTo(this.centerx + explodedX, this.centery + explodedY);
+                            this.context.closePath(); // End the segment
+                            this.context.stroke();
+                            this.context.fill();
+    
+                            this.angles.push([
+                                              startAngle,
+                                              endAngle,
+                                              0,
+                                              endRadius * this.Get('chart.animation.roundrobin.factor'),
+                                              this.centerx + explodedX,
+                                              this.centery + explodedY
+                                             ]);
+                        
+                        } else {
+
+                            this.context.beginPath(); // Begin the segment
+                                
+                                var startRadius = endRadius; // This comes from the prior iteration of this loop
+                                var endRadius = (((this.data[i][j] - this.Get('chart.ymin')) / (this.max - this.Get('chart.ymin'))) * this.radius) + startRadius;
+                                    endRadius = endRadius * this.properties['chart.animation.grow.multiplier'];
+                
+                                this.context.arc(this.centerx + explodedX,
+                                                 this.centery + explodedY,
+                                                 startRadius  * this.Get('chart.animation.roundrobin.factor'),
+                                                 startAngle,
+                                                 endAngle,
+                                                 0);
+                
+                                this.context.arc(this.centerx + explodedX,
+                                                 this.centery + explodedY,
+                                                 endRadius  * this.Get('chart.animation.roundrobin.factor'),
+                                                 endAngle,
+                                                 startAngle,
+                                                 true);
+                
+                            this.context.closePath(); // End the segment
+                            this.context.stroke();
+                            this.context.fill();
+    
+                            this.angles.push([
+                                              startAngle,
+                                              endAngle,
+                                              startRadius * this.Get('chart.animation.roundrobin.factor'),
+                                              endRadius * this.Get('chart.animation.roundrobin.factor'),
+                                              this.centerx + explodedX,
+                                              this.centery + explodedY
+                                             ]);
+                        }
+                    }
+                }
+    
+                this.startRadians += segmentRadians;
+            }
         }
 
         // Turn off the transparency
@@ -425,7 +698,11 @@
 
         // Draw the title if any has been set
         if (this.Get('chart.title')) {
-            RGraph.DrawTitle(this.canvas, this.Get('chart.title'), this.Get('chart.gutter'), this.centerx, this.Get('chart.text.size') + 2);
+            RGraph.DrawTitle(this,
+                             this.Get('chart.title'),
+                             (this.canvas.height / 2) - this.radius,
+                             this.centerx,
+                             this.Get('chart.title.size') ? this.Get('chart.title.size') : this.Get('chart.text.size') + 2);
         }
     }
 
@@ -443,19 +720,27 @@
         }
         
         // Set the color to black
-        this.context.fillStyle = 'black';
+        this.context.fillStyle = this.properties['chart.text.color'];
         this.context.strokeStyle = 'black';
         
-        var r         = this.radius - 10;
-        var font_face = this.Get('chart.text.font');
-        var font_size = this.Get('chart.text.size');
-        var context   = this.context;
-        var axes      = this.Get('chart.labels.axes').toLowerCase();
+        var r          = this.radius;
+        var font_face  = this.Get('chart.text.font');
+        var font_size  = this.Get('chart.text.size');
+        var context    = this.context;
+        var axes       = this.Get('chart.labels.axes').toLowerCase();
+        var decimals   = this.Get('chart.scale.decimals');
+        var units_pre  = this.Get('chart.units.pre');
+        var units_post = this.Get('chart.units.post');
 
-        // Draw any labels
-
+        // Draw any circular labels
         if (typeof(this.Get('chart.labels')) == 'object' && this.Get('chart.labels')) {
             this.DrawCircularLabels(context, this.Get('chart.labels'), font_face, font_size, r + 10);
+        }
+
+
+        // Size can be specified seperately for the scale now
+        if (typeof(this.properties['chart.text.size.scale']) == 'number') {
+            font_size = this.properties['chart.text.size.scale'];
         }
 
 
@@ -463,41 +748,43 @@
 
         // The "North" axis labels
         if (axes.indexOf('n') > -1) {
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - ((r - this.Get('chart.gutter')) * 0.2), String(Number(this.scale[0]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - ((r - this.Get('chart.gutter')) * 0.4), String(Number(this.scale[1]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - ((r - this.Get('chart.gutter')) * 0.6), String(Number(this.scale[2]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - ((r - this.Get('chart.gutter')) * 0.8), String(Number(this.scale[3]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - r + this.Get('chart.gutter'), String(Number(this.scale[4]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - (r * 0.2), RGraph.number_format(this, Number(this.scale[0]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - (r * 0.4), RGraph.number_format(this, Number(this.scale[1]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - (r * 0.6), RGraph.number_format(this, Number(this.scale[2]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - (r * 0.8), RGraph.number_format(this, Number(this.scale[3]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery - r, RGraph.number_format(this, Number(this.scale[4]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
         }
 
         // The "South" axis labels
         if (axes.indexOf('s') > -1) {
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + ((r - this.Get('chart.gutter')) * 0.2), String(Number(this.scale[0]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + ((r - this.Get('chart.gutter')) * 0.4), String(Number(this.scale[1]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + ((r - this.Get('chart.gutter')) * 0.6), String(Number(this.scale[2]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + ((r - this.Get('chart.gutter')) * 0.8), String(Number(this.scale[3]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + r - this.Get('chart.gutter'), String(Number(this.scale[4]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + (r * 0.2), RGraph.number_format(this, Number(this.scale[0]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + (r * 0.4), RGraph.number_format(this, Number(this.scale[1]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + (r * 0.6), RGraph.number_format(this, Number(this.scale[2]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + (r * 0.8), RGraph.number_format(this, Number(this.scale[3]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx, this.centery + r, RGraph.number_format(this, Number(this.scale[4]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
         }
         
         // The "East" axis labels
         if (axes.indexOf('e') > -1) {
-            RGraph.Text(context, font_face, font_size, this.centerx + ((r - this.Get('chart.gutter')) * 0.2), this.centery, String(Number(this.scale[0]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx + ((r - this.Get('chart.gutter')) * 0.4), this.centery, String(Number(this.scale[1]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx + ((r - this.Get('chart.gutter')) * 0.6), this.centery, String(Number(this.scale[2]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx + ((r - this.Get('chart.gutter')) * 0.8), this.centery, String(Number(this.scale[3]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx + r - this.Get('chart.gutter'), this.centery, String(Number(this.scale[4]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx + (r * 0.2), this.centery, RGraph.number_format(this, Number(this.scale[0]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx + (r * 0.4), this.centery, RGraph.number_format(this, Number(this.scale[1]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx + (r * 0.6), this.centery, RGraph.number_format(this, Number(this.scale[2]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx + (r * 0.8), this.centery, RGraph.number_format(this, Number(this.scale[3]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx + r, this.centery, RGraph.number_format(this, Number(this.scale[4]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
         }
 
         // The "West" axis labels
         if (axes.indexOf('w') > -1) {
-            RGraph.Text(context, font_face, font_size, this.centerx - ((r - this.Get('chart.gutter')) * 0.2), this.centery, String(Number(this.scale[0]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx - ((r - this.Get('chart.gutter')) * 0.4), this.centery, String(Number(this.scale[1]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx - ((r - this.Get('chart.gutter')) * 0.6), this.centery, String(Number(this.scale[2]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx - ((r - this.Get('chart.gutter')) * 0.8), this.centery, String(Number(this.scale[3]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
-            RGraph.Text(context, font_face, font_size, this.centerx - r + this.Get('chart.gutter'), this.centery, String(Number(this.scale[4]).toFixed(this.Get('chart.scale.decimals'))), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx - (r * 0.2), this.centery, RGraph.number_format(this, Number(this.scale[0]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx - (r * 0.4), this.centery, RGraph.number_format(this, Number(this.scale[1]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx - (r * 0.6), this.centery, RGraph.number_format(this, Number(this.scale[2]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx - (r * 0.8), this.centery, RGraph.number_format(this, Number(this.scale[3]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
+            RGraph.Text(context, font_face, font_size, this.centerx - r, this.centery, RGraph.number_format(this, Number(this.scale[4]).toFixed(decimals), units_pre, units_post), 'center', 'center', true, false, color);
         }
 
-        RGraph.Text(context, font_face, font_size, this.centerx,  this.centery, typeof(this.Get('chart.ymin')) == 'number' ? String(Number(this.Get('chart.ymin')).toFixed(this.Get('chart.scale.decimals'))) : '0', 'center', 'center', true, false, color);
+        if (axes.length > 0) {
+            RGraph.Text(context, font_face, font_size, this.centerx,  this.centery, typeof(this.Get('chart.ymin')) == 'number' ? RGraph.number_format(this, Number(this.Get('chart.ymin')).toFixed(this.Get('chart.scale.decimals')), units_pre, units_post) : '0', 'center', 'center', true, false, color);
+        }
     }
 
 
@@ -508,18 +795,405 @@
     */
     RGraph.Rose.prototype.DrawCircularLabels = function (context, labels, font_face, font_size, r)
     {
+        var variant = this.Get('chart.variant');
         var position = this.Get('chart.labels.position');
-        var r        = r - this.Get('chart.gutter') + 10;
+        var r        = r + 5 + this.Get('chart.labels.offset');
 
-        for (var i=0; i<labels.length; ++i) {
+        for (var i=0; i<this.angles.length; ++i) {
+            if (typeof(variant) == 'string' && variant == 'non-equi-angular') {
+                var a = Number(this.angles[i][0]) + ((this.angles[i][1] - this.angles[i][0]) / 2);
+            } else {
+                var a = (TWOPI / labels.length) * (i + 1) - (TWOPI / (labels.length * 2));
+                var a = a - HALFPI + (this.Get('chart.labels.position') == 'edge' ? ((TWOPI / labels.length) / 2) : 0);
+            }
 
-
-            var a = (360 / labels.length) * (i + 1) - (360 / (labels.length * 2));
-            var a = a - 90 + (this.Get('chart.labels.position') == 'edge' ? ((360 / labels.length) / 2) : 0);
-
-            var x = Math.cos(a / 57.29577866666) * (r + 10);
-            var y = Math.sin(a / 57.29577866666) * (r + 10);
-
-            RGraph.Text(context, font_face, font_size, this.centerx + x, this.centery + y, String(labels[i]), 'center', 'center');
+            var x = this.centerx + (Math.cos(a) * r);
+            var y = this.centery + (Math.sin(a) * r);
+    
+            // Horizontal alignment
+            if (x > this.centerx) {
+                halign = 'left';
+            } else if (x == this.centerx) {
+                halign = 'center';
+            } else {
+                halign = 'right';
+            }
+            
+            RGraph.Text(context, font_face, font_size, x, y, String(labels[i]), 'center', halign);
         }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+    * This function is for use with circular graph types, eg the Pie or Rose. Pass it your event object
+    * and it will pass you back the corresponding segment details as an array:
+    * 
+    * [x, y, r, startAngle, endAngle]
+    * 
+    * Angles are measured in degrees, and are measured from the "east" axis (just like the canvas).
+    * 
+    * @param object e   Your event object
+    */
+    RGraph.Rose.prototype.getShape =
+    RGraph.Rose.prototype.getSegment = function (e)
+    {
+        RGraph.FixEventObject(e);
+
+        var canvas  = this.canvas;
+        var context = this.context;
+        var angles  = this.angles;
+        var ret     = [];
+
+        /**
+        * Go through all of the angles checking each one
+        */
+        for (var i=0; i<angles.length ; ++i) {
+
+            var angleStart  = angles[i][0];
+            var angleEnd    = angles[i][1];
+            var radiusStart = angles[i][2];
+            var radiusEnd   = angles[i][3];
+            var centerX     = angles[i][4];
+            var centerY     = angles[i][5];
+            var mouseXY     = RGraph.getMouseXY(e);
+            var mouseX      = mouseXY[0] - centerX;
+            var mouseY      = mouseXY[1] - centerY;
+
+            // New click testing (the 0.01 is there because Opera doesn't like 0 as the radius)
+            this.context.beginPath();
+                this.context.arc(centerX, centerY, radiusStart ? radiusStart : 0.01, angleStart, angleEnd, false);
+                this.context.arc(centerX, centerY, radiusEnd, angleEnd, angleStart, true);
+            this.context.closePath();
+
+            // No stroke() or fill()
+
+
+            if (context.isPointInPath(mouseXY[0], mouseXY[1])) {
+
+                angles[i][6] = i;
+                
+                if (RGraph.parseTooltipText) {
+                    var tooltip = RGraph.parseTooltipText(this.Get('chart.tooltips'), angles[i][6]);
+                }
+
+                // Add the textual keys
+                angles[i]['object']       = this;
+                angles[i]['x']            = angles[i][4];
+                angles[i]['y']            = angles[i][5];
+                angles[i]['angle.start']  = angles[i][0];
+                angles[i]['angle.end']    = angles[i][1];
+                angles[i]['radius.start'] = angles[i][2];
+                angles[i]['radius.end']   = angles[i][3];
+                angles[i]['index']        = angles[i][6];
+                angles[i]['tooltip']      = tooltip ? tooltip : null;
+
+                return angles[i];
+            }
+        }
+
+        return null;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+    * Returns any exploded for a particular segment
+    */
+    RGraph.Rose.prototype.getexploded = function (index, startAngle, endAngle, exploded)
+    {
+        var explodedx, explodedy;
+
+        /**
+        * Retrieve any exploded - the exploded can be an array of numbers or a single number
+        * (which is applied to all segments)
+        */
+        if (typeof(exploded) == 'object' && typeof(exploded[index]) == 'number') {
+            explodedx = Math.cos(((endAngle - startAngle) / 2) + startAngle) * exploded[index];
+            explodedy = Math.sin(((endAngle - startAngle) / 2) + startAngle) * exploded[index];
+        
+        } else if (typeof(exploded) == 'number') {
+            explodedx = Math.cos(((endAngle - startAngle) / 2) + startAngle) * exploded;
+            explodedy = Math.sin(((endAngle - startAngle) / 2) + startAngle) * exploded;
+
+        } else {
+            explodedx = 0;
+            explodedy = 0;
+        }
+        
+        return [explodedx, explodedy];
+    }
+
+
+
+    /**
+    * This function facilitates the installation of tooltip event listeners if
+    * tooltips are defined.
+    */
+    RGraph.Rose.prototype.AllowTooltips = function ()
+    {
+        // Preload any tooltip images that are used in the tooltips
+        RGraph.PreLoadTooltipImages(this);
+
+
+        /**
+        * This installs the window mousedown event listener that lears any
+        * highlight that may be visible.
+        */
+        RGraph.InstallWindowMousedownTooltipListener(this);
+
+
+        /**
+        * This installs the canvas mousemove event listener. This function
+        * controls the pointer shape.
+        */
+        RGraph.InstallCanvasMousemoveTooltipListener(this);
+
+
+        /**
+        * This installs the canvas mouseup event listener. This is the
+        * function that actually shows the appropriate tooltip (if any).
+        */
+        RGraph.InstallCanvasMouseupTooltipListener(this);
+    }
+
+
+
+    /**
+    * Each object type has its own Highlight() function which highlights the appropriate shape
+    * 
+    * @param object shape The shape to highlight
+    */
+    RGraph.Rose.prototype.Highlight = function (shape)
+    {
+        if (this.Get('chart.tooltips.highlight')) {
+            // Add the new segment highlight
+            this.context.beginPath();
+            
+                this.context.strokeStyle = this.Get('chart.highlight.stroke');
+                this.context.fillStyle = this.Get('chart.highlight.fill');
+            
+                this.context.arc(shape['x'], shape['y'], shape['radius.end'], shape['angle.start'], shape['angle.end'], false);
+                
+                if (shape['radius.start'] > 0) {
+                    this.context.arc(shape['x'], shape['y'], shape['radius.start'], shape['angle.end'], shape['angle.start'], true);
+                } else {
+                    this.context.lineTo(shape['x'], shape['y']);
+                }
+            this.context.closePath();
+    
+            this.context.stroke();
+            this.context.fill();
+        }
+    }
+
+
+
+    /**
+    * The getObjectByXY() worker method. Don't call this call:
+    * 
+    * RGraph.ObjectRegistry.getObjectByXY(e)
+    * 
+    * @param object e The event object
+    */
+    RGraph.Rose.prototype.getObjectByXY = function (e)
+    {
+        var mouseXY = RGraph.getMouseXY(e);
+
+        // Work out the radius
+        var radius = RGraph.getHypLength(this.centerx, this.centery, mouseXY[0], mouseXY[1]);
+
+        if (
+               mouseXY[0] > (this.centerx - this.radius)
+            && mouseXY[0] < (this.centerx + this.radius)
+            && mouseXY[1] > (this.centery - this.radius)
+            && mouseXY[1] < (this.centery + this.radius)
+            && radius <= this.radius
+            ) {
+
+            return this;
+        }
+    }
+
+
+
+    /**
+    * This function positions a tooltip when it is displayed
+    * 
+    * @param obj object    The chart object
+    * @param int x         The X coordinate specified for the tooltip
+    * @param int y         The Y coordinate specified for the tooltip
+    * @param objec tooltip The tooltips DIV element
+    */
+    RGraph.Rose.prototype.positionTooltip = function (obj, x, y, tooltip, idx)
+    {
+
+        var coordX      = obj.angles[idx][4];
+        var coordY      = obj.angles[idx][5];
+        var angleStart  = obj.angles[idx][0];
+        var angleEnd    = obj.angles[idx][1];
+        var radius      = ((obj.angles[idx][3] - obj.angles[idx][2]) / 2) + obj.angles[idx][2];
+
+        var angleCenter = ((angleEnd - angleStart) / 2) + angleStart;
+        var canvasXY    = RGraph.getCanvasXY(obj.canvas);
+        var gutterLeft  = obj.Get('chart.gutter.left');
+        var gutterTop   = obj.Get('chart.gutter.top');
+        var width       = tooltip.offsetWidth;
+        var height      = tooltip.offsetHeight;
+
+        
+        // By default any overflow is hidden
+        tooltip.style.overflow = '';
+
+        // The arrow
+        var img = new Image();
+            img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAFCAYAAACjKgd3AAAARUlEQVQYV2NkQAN79+797+RkhC4M5+/bd47B2dmZEVkBCgcmgcsgbAaA9GA1BCSBbhAuA/AagmwQPgMIGgIzCD0M0AMMAEFVIAa6UQgcAAAAAElFTkSuQmCC';
+            img.style.position = 'absolute';
+            img.id = '__rgraph_tooltip_pointer__';
+            img.style.top = (tooltip.offsetHeight - 2) + 'px';
+        tooltip.appendChild(img);
+        
+        // Reposition the tooltip if at the edges:
+
+        // LEFT edge
+        if ((canvasXY[0] + coordX + (Math.cos(angleCenter) * radius) - (width / 2)) < 10) {
+            tooltip.style.left = (canvasXY[0] + coordX + (Math.cos(angleCenter) * radius)- (width * 0.1)) + 'px';
+            tooltip.style.top = (canvasXY[1] + coordY + (Math.sin(angleCenter) * radius)- height - 5) + 'px';
+            img.style.left = ((width * 0.1) - 8.5) + 'px';
+
+        // RIGHT edge
+        } else if ((canvasXY[0] + coordX + (Math.cos(angleCenter) * radius) + (width / 2)) > (document.body.offsetWidth - 10) ) {
+            tooltip.style.left = (canvasXY[0] + coordX + (Math.cos(angleCenter) * radius) - (width * 0.9)) + 'px';
+            tooltip.style.top = (canvasXY[1] + coordY + (Math.sin(angleCenter) * radius)- height - 5) + 'px';
+            img.style.left = ((width * 0.9) - 8.5) + 'px';
+
+        // Default positioning - CENTERED
+        } else {
+            tooltip.style.left = (canvasXY[0] + coordX + (Math.cos(angleCenter) * radius)- (width / 2)) + 'px';
+            tooltip.style.top = (canvasXY[1] + coordY + (Math.sin(angleCenter) * radius)- height - 5) + 'px';
+            img.style.left = ((width * 0.5) - 8.5) + 'px';
+        }
+    }
+
+
+
+    /**
+    * This method gives you the relevant radius for a particular value
+    * 
+    * @param number value The relevant value to get the radius for
+    */
+    RGraph.Rose.prototype.getRadius = function (value)
+    {
+        // Range checking (the Rose minimum is always 0)
+        if (value < 0 || value > this.max) {
+            return null;
+        }
+        
+        var r = (value / this.max) * this.radius;
+        
+        return r;
+    }
+
+
+
+    /**
+    * This allows for easy specification of gradients
+    */
+    RGraph.Rose.prototype.parseColors = function ()
+    {
+        for (var i=0; i<this.properties['chart.colors'].length; ++i) {
+            this.properties['chart.colors'][i] = this.parseSingleColorForGradient(this.properties['chart.colors'][i]);
+        }
+
+        /**
+        * Key colors
+        */
+        if (!RGraph.is_null(this.properties['chart.key.colors'])) {
+            for (var i=0; i<this.properties['chart.key.colors'].length; ++i) {
+                this.properties['chart.key.colors'][i] = this.parseSingleColorForGradient(this.properties['chart.key.colors'][i]);
+            }
+        }
+        
+        this.properties['chart.text.color']       = this.parseSingleColorForGradient(this.properties['chart.text.color']);
+        this.properties['chart.title.color']      = this.parseSingleColorForGradient(this.properties['chart.title.color']);
+        this.properties['chart.highlight.fill']   = this.parseSingleColorForGradient(this.properties['chart.highlight.fill']);
+        this.properties['chart.highlight.stroke'] = this.parseSingleColorForGradient(this.properties['chart.highlight.stroke']);
+    }
+
+
+
+    /**
+    * This parses a single color value
+    */
+    RGraph.Rose.prototype.parseSingleColorForGradient = function (color)
+    {
+        var canvas  = this.canvas;
+        var context = this.context;
+        
+        if (!color || typeof(color) != 'string') {
+            return color;
+        }
+
+        if (color.match(/^gradient\((.*)\)$/i)) {
+
+            var parts = RegExp.$1.split(':');
+
+            // Create the gradient
+            //var grad = context.createLinearGradient(0,0,canvas.width,0);
+            var grad = context.createRadialGradient(this.centerx, this.centery, 0, this.centerx, this.centery, this.radius);
+
+            var diff = 1 / (parts.length - 1);
+
+            grad.addColorStop(0, RGraph.trim(parts[0]));
+
+            for (var j=1; j<parts.length; ++j) {
+                grad.addColorStop(j * diff, RGraph.trim(parts[j]));
+            }
+        }
+
+        return grad ? grad : color;
     }

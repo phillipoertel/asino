@@ -13,10 +13,10 @@
                                                  [<%= raw @income.collect {|m| m[1]}.join(',') %>],
                                                  [<%= raw @saldo.collect {|m| m[1]}.join(',') %>]);
           l.Set('chart.labels', ['<%= raw @expenses.collect {|d| l(d[0], :format => :monthname_abbrev)}.join("','") %>']);
-          l.Set('chart.gutter', 50);
+          l.Set('chart.gutter.left', 70);
           l.Set('chart.outofbounds', true); 
           <% unless @saldo.collect {|m| m[1]}.select {|v| v < 0}.empty? %>
-            l.Set('chart.xaxispos', 'center');
+            //l.Set('chart.xaxispos', 'center');
           <% end %>
           l.Set('chart.linewidth', 1.5)
           l.Set('chart.shadow', true);
@@ -26,6 +26,7 @@
           l.Set('chart.shadow.color', 'rgba(0,0,0,0.1)');
           l.Set('chart.tickmarks', 'circle');
           l.Set('chart.axis.color', '#777')
+          l.Set('chart.spline', !RGraph.isOld());
           l.Set('chart.background', '#fafafa');
           l.Set('chart.background.grid.autofit', true)
           l.Set('chart.background.grid.color', '#eee')

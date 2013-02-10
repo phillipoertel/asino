@@ -8,7 +8,7 @@
     * | purposes there is a small one-time licensing fee to pay and for non          |
     * | commercial  purposes it is free to use. You can read the full license here:  |
     * |                                                                              |
-    * |                      http://www.rgraph.net/LICENSE.txt                       |
+    * |                      http://www.rgraph.net/license                           |
     * o------------------------------------------------------------------------------o
     */
     
@@ -39,6 +39,9 @@
         // Call them initially
         ModalDialog.Resize();
         
+        if (typeof(ModalDialog.onmodaldialog) == 'function') {
+            ModalDialog.onmodaldialog();
+        }
         ModalDialog.FireCustomEvent('onmodaldialog');
     }
     
@@ -73,11 +76,12 @@
     ModalDialog.ShowDialog = function ()
     {
         // Create the DIV if necessary
-        if (!ModalDialog.dialog) {
+        // Jan 2012- Changed so that the dialog is ALWAYS (re)created
+        if (!ModalDialog.dialog || true) {
             ModalDialog.dialog = document.createElement('DIV');
     
-            ModalDialog.dialog.id                    = 'ModalDialog_dialog';
-            ModalDialog.dialog.className             = 'ModalDialog_dialog';
+            ModalDialog.dialog.id        = 'ModalDialog_dialog';
+            ModalDialog.dialog.className = 'ModalDialog_dialog';
 
             var borderRadius = '15px';
 
@@ -87,7 +91,7 @@
 
             ModalDialog.dialog.style.boxShadow    = '3px 3px 3px rgba(96,96,96,0.5)';
             ModalDialog.dialog.style.MozBoxShadow = '3px 3px 3px rgba(96,96,96,0.5)';
-            ModalDialog.dialog.style.WebkitBoxShadow    = 'rgba(96,96,96,0.5) 3px 3px 3px';
+            ModalDialog.dialog.style.WebkitBoxShadow = 'rgba(96,96,96,0.5) 3px 3px 3px';
 
             ModalDialog.dialog.style.position        = 'fixed';
             ModalDialog.dialog.style.backgroundColor = 'white';
@@ -96,7 +100,7 @@
             ModalDialog.dialog.style.zIndex          = 32767;
             ModalDialog.dialog.style.padding         = '5px';
             ModalDialog.dialog.style.paddingTop      = '25px';
-            ModalDialog.dialog.style.opacity       = 0;
+            ModalDialog.dialog.style.opacity         = 0;
             
             if (document.all) {
                 ModalDialog.dialog.style.zIndex = 32767;
@@ -145,7 +149,11 @@
                 content.style.height = '100%';
             ModalDialog.dialog.appendChild(content);
 
-        content.innerHTML = document.getElementById(ModalDialog.id).innerHTML;
+            if (ModalDialog.id.toLowerCase().substring(0, 7) == 'string:') {
+                content.innerHTML = ModalDialog.id.substring(7);
+            } else {
+                content.innerHTML = document.getElementById(ModalDialog.id).innerHTML;
+            }
 
             // Now reposition the dialog in the center
             ModalDialog.dialog.style.left = (document.body.offsetWidth / 2) - (ModalDialog.dialog.offsetWidth / 2) + 'px';
@@ -176,6 +184,11 @@
     ModalDialog.Close = function ()
     {
         if (ModalDialog.dialog) {
+            // February 2012 - now remove the dialog node from the DOM
+            if (document.getElementById(ModalDialog.dialog.id)) {
+                document.body.removeChild(ModalDialog.dialog);
+            }
+
             ModalDialog.dialog.style.visibility = 'hidden';
             ModalDialog.dialog.style.opacity = 0;
         }
@@ -183,6 +196,11 @@
         if (ModalDialog.background) {
             ModalDialog.background.style.visibility = 'hidden';
             ModalDialog.background.style.opacity = 0;
+            
+            // February 2012 - now remove the dialog node from the DOM
+            if (document.getElementById(ModalDialog.background.id)) {
+                document.body.removeChild(ModalDialog.background);
+            }
         }        
     }
     
@@ -240,5 +258,5 @@
     */
     ModalDialog.isIE8 = function ()
     {
-        return document.all && (navigatot.userAgent.indexOf('MSIE 8') > 0);
+        return document.all && (navigator.userAgent.indexOf('MSIE 8') > 0);
     }

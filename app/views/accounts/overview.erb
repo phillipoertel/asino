@@ -7,7 +7,7 @@
   	                    :title => l((@startdate + 1.month), :format => :monthname) %>
   </h1>
 
-  <canvas id="expenseGraph" width="390" height="500">
+  <canvas id="expenseGraph" width="390" height="300">
       [Ihr Internetbroswer unterstützt kein Canvas Objekt.]
   </canvas>
   <script>
@@ -16,7 +16,10 @@
           var p = new RGraph.Pie('expenseGraph', [<%= @expense_categories.collect {|m| m.sum * -1}.join(',') %>]);
           p.Set('chart.title', 'Ausgaben')
           p.Set('chart.labels', ['<%= raw @expense_categories.collect {|d| "#{d.percent}% #{d.name}" if d.percent > 1}.join('\',\'') %>']);
-          p.Set('chart.gutter', 120)
+          p.Set('chart.gutter.left', 120)
+          p.Set('chart.gutter.right', 120)
+          p.Set('chart.gutter.top', 30)
+          p.Set('chart.gutter.bottom', 30)
           p.Set('chart.linewidth', 1);
           p.Set('chart.stroke', '#fff');
           p.Set('chart.strokestyle', '#fff');
@@ -34,7 +37,7 @@
       }
   </script>
   
-  <canvas id="incomeGraph" width="390" height="500">
+  <canvas id="incomeGraph" width="390" height="300">
       [Ihr Internetbroswer unterstützt kein Canvas Objekt.]
   </canvas>
   
@@ -46,7 +49,10 @@
           var i = new RGraph.Pie('incomeGraph', [<%= @income_categories.collect {|m| m.sum * -1}.join(',') %>]);
           i.Set('chart.title', 'Einnahmen')
           i.Set('chart.labels', ['<%= raw @income_categories.collect {|d| "#{d.percent}% #{d.name}" if d.percent > 0.5}.join("','") %>']);
-          i.Set('chart.gutter', 120)
+          i.Set('chart.gutter.left', 120)
+          i.Set('chart.gutter.right', 120)
+          i.Set('chart.gutter.top', 30)
+          i.Set('chart.gutter.bottom', 30)
           i.Set('chart.linewidth', 1);
           i.Set('chart.stroke', '#fff');
           i.Set('chart.strokestyle', '#fff');

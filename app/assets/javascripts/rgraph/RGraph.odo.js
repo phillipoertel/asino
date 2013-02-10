@@ -8,7 +8,7 @@
     * | purposes there is a small one-time licensing fee to pay and for non          |
     * | commercial  purposes it is free to use. You can read the full license here:  |
     * |                                                                              |
-    * |                      http://www.rgraph.net/LICENSE.txt                       |
+    * |                      http://www.rgraph.net/license                           |
     * o------------------------------------------------------------------------------o
     */
     
@@ -32,8 +32,14 @@
         this.type              = 'odo';
         this.isRGraph          = true;
         this.start             = start;
+        this.min               = start;
         this.end               = end;
+        this.max               = end;
         this.value             = value;
+        this.currentValue      = null;
+        this.uid               = RGraph.CreateUID();
+        this.canvas.uid        = this.canvas.uid ? this.canvas.uid : RGraph.CreateUID();
+        this.colorsParsed      = false;
 
 
         /**
@@ -43,26 +49,43 @@
 
 
         this.properties = {
+            'chart.centerx':                null,
+            'chart.centery':                null,
+            'chart.radius':                 null,
             'chart.value.text':             false,
+            'chart.value.text.decimals':    0,
             'chart.needle.color':           'black',
             'chart.needle.width':           2,
             'chart.needle.head':            true,
             'chart.needle.tail':            true,
             'chart.needle.type':            'pointer',
             'chart.needle.extra':            [],
+            'chart.needle.triangle.border': '#aaa',
             'chart.text.size':              10,
             'chart.text.color':             'black',
-            'chart.text.font':              'Verdana',
+            'chart.text.font':              'Arial',
             'chart.green.max':              end * 0.75,
             'chart.red.min':                end * 0.9,
-            'chart.green.color':            'green',
-            'chart.yellow.color':           'yellow',
-            'chart.red.color':              'red',
+
+            'chart.green.color':            'Gradient(white:#0c0)',
+            'chart.yellow.color':           'Gradient(white:#ff0)',
+            'chart.red.color':              'Gradient(white:#f00)',
+
             'chart.label.area':             35,
-            'chart.gutter':                 25,
+            'chart.gutter.left':            25,
+            'chart.gutter.right':           25,
+            'chart.gutter.top':             25,
+            'chart.gutter.bottom':          25,
             'chart.title':                  '',
+            'chart.title.background':       null,
             'chart.title.hpos':             null,
             'chart.title.vpos':             null,
+            'chart.title.font':             null,
+            'chart.title.bold':             true,
+            'chart.title.x':                null,
+            'chart.title.y':                null,
+            'chart.title.halign':           null,
+            'chart.title.valign':           null,
             'chart.contextmenu':            null,
             'chart.linewidth':              1,
             'chart.shadow.inner':           false,
@@ -78,36 +101,60 @@
             'chart.annotatable':            false,
             'chart.annotate.color':         'black',
             'chart.scale.decimals':         0,
+            'chart.scale.point':            '.',
+            'chart.scale.thousand':         ',',
             'chart.zoom.factor':            1.5,
             'chart.zoom.fade.in':           true,
             'chart.zoom.fade.out':          true,
             'chart.zoom.hdir':              'right',
             'chart.zoom.vdir':              'down',
-            'chart.zoom.frames':            10,
-            'chart.zoom.delay':             50,
+            'chart.zoom.frames':            25,
+            'chart.zoom.delay':             16.666,
             'chart.zoom.shadow':            true,
-            'chart.zoom.mode':              'canvas',
-            'chart.zoom.thumbnail.width':   75,
-            'chart.zoom.thumbnail.height':  75,
             'chart.zoom.background':        true,
             'chart.zoom.action':            'zoom',
             'chart.resizable':              false,
+            'chart.resize.handle.adjust':   [0,0],
+            'chart.resize.handle.background': null,
             'chart.units.pre':              '',
             'chart.units.post':             '',
             'chart.border':                 false,
+            'chart.border.color1':          '#BEBCB0',
+            'chart.border.color2':          '#F0EFEA',
+            'chart.border.color3':          '#BEBCB0',
+            'chart.tickmarks':              true,
             'chart.tickmarks.highlighted':  false,
             'chart.zerostart':              false,
             'chart.labels':                 null,
             'chart.units.pre':              '',
             'chart.units.post':             '',
             'chart.value.units.pre':        '',
-            'chart.value.units.post':       ''
+            'chart.value.units.post':       '',
+            'chart.key':                    null,
+            'chart.key.background':         'white',
+            'chart.key.position':           'graph',
+            'chart.key.shadow':             false,
+            'chart.key.shadow.color':       '#666',
+            'chart.key.shadow.blur':        3,
+            'chart.key.shadow.offsetx':     2,
+            'chart.key.shadow.offsety':     2,
+            'chart.key.position.gutter.boxed': true,
+            'chart.key.position.x':         null,
+            'chart.key.position.y':         null,
+            'chart.key.halign':             'right',
+            'chart.key.color.shape':        'square',
+            'chart.key.rounded':            true,
+            'chart.key.text.size':          10,
+            'chart.key.colors':             null,
+            'chart.adjustable':             false
         }
 
-        // Check the common library has been included
-        if (typeof(RGraph) == 'undefined') {
-            alert('[ODO] Fatal error: The common library does not appear to have been included');
-        }
+
+
+        /**
+        * Register the object
+        */
+        RGraph.Register(this);
     }
 
 
@@ -119,6 +166,15 @@
     */
     RGraph.Odometer.prototype.Set = function (name, value)
     {
+        name = name.toLowerCase();
+
+        /**
+        * This should be done first - prepend the propertyy name with "chart." if necessary
+        */
+        if (name.substr(0,6) != 'chart.') {
+            name = 'chart.' + name;
+        }
+
         if (name == 'chart.needle.style') {
             alert('[RGRAPH] The RGraph property chart.needle.style has changed to chart.needle.color');
         }
@@ -127,7 +183,12 @@
             name = 'chart.needle.width';
         }
 
-        this.properties[name.toLowerCase()] = value;
+        if (name == 'chart.value') {
+            this.value = value;
+            return;
+        }
+
+        this.properties[name] = value;
     }
 
 
@@ -138,6 +199,17 @@
     */
     RGraph.Odometer.prototype.Get = function (name)
     {
+        /**
+        * This should be done first - prepend the property name with "chart." if necessary
+        */
+        if (name.substr(0,6) != 'chart.') {
+            name = 'chart.' + name;
+        }
+
+        if (name == 'chart.value') {
+            return this.value;
+        }
+
         return this.properties[name.toLowerCase()];
     }
 
@@ -152,12 +224,75 @@
         */
         RGraph.FireCustomEvent(this, 'onbeforedraw');
 
+        
+        /**
+        * Set the current value
+        */
+        this.currentValue = this.value;
+
+        /**
+        * No longer allow values outside the range of the Odo
+        */
+        if (this.value > this.end) {
+            this.value = this.end;
+        }
+
+        if (this.value < this.start) {
+            this.value = this.start;
+        }
+
+        /**
+        * This is new in May 2011 and facilitates indiviual gutter settings,
+        * eg chart.gutter.left
+        */
+        this.gutterLeft   = this.Get('chart.gutter.left');
+        this.gutterRight  = this.Get('chart.gutter.right');
+        this.gutterTop    = this.Get('chart.gutter.top');
+        this.gutterBottom = this.Get('chart.gutter.bottom');
+
         // Work out a few things
-        this.radius   = Math.min(this.canvas.width / 2, this.canvas.height / 2) - this.Get('chart.gutter') - (this.Get('chart.border') ? 25 : 0);
+        this.radius   = Math.min(
+                                 (this.canvas.width - this.gutterLeft - this.gutterRight) / 2,
+                                 (this.canvas.height - this.gutterTop - this.gutterBottom) / 2
+                                )
+                                - (this.Get('chart.border') ? 25 : 0);
         this.diameter = 2 * this.radius;
-        this.centerx  = this.canvas.width / 2;
-        this.centery  = this.canvas.height / 2;
+        this.centerx  = ((this.canvas.width - this.gutterLeft- this.gutterRight) / 2) + this.gutterLeft;
+        this.centery  = ((this.canvas.height - this.gutterTop - this.gutterBottom) / 2) + this.gutterTop;
         this.range    = this.end - this.start;
+        
+        /**
+        * Move the centerx if the key is defined
+        */
+        if (this.Get('chart.key') && this.Get('chart.key').length > 0 && this.canvas.width > this.canvas.height) this.centerx = 5 + this.radius;
+        if (typeof(this.Get('chart.centerx')) == 'number') this.centerx = this.Get('chart.centerx');
+        if (typeof(this.Get('chart.centery')) == 'number') this.centery = this.Get('chart.centery');
+
+        
+        /**
+        * Allow custom setting of the radius
+        */
+        if (typeof(this.Get('chart.radius')) == 'number') {
+            this.radius = this.Get('chart.radius');
+            
+            if (this.Get('chart.border')) {
+                this.radius -= 25;
+            }
+        }
+
+
+        /**
+        * Parse the colors for gradients. Its down here so that the center X/Y can be used
+        */
+        if (!this.colorsParsed) {
+
+            this.parseColors();
+
+            // Don't want to do this again
+            this.colorsParsed = true;
+        }
+
+
 
         this.context.lineWidth = this.Get('chart.linewidth');
 
@@ -176,8 +311,25 @@
         if (this.Get('chart.needle.extra').length > 0) {
             for (var i=0; i<this.Get('chart.needle.extra').length; ++i) {
                 var needle = this.Get('chart.needle.extra')[i];
-                this.DrawNeedle(needle[0], needle[1]);
+                this.DrawNeedle(needle[0], needle[1], needle[2]);
             }
+        }
+        
+        /**
+        * Draw the key if requested
+        */
+        if (this.Get('chart.key') && this.Get('chart.key').length > 0) {
+            // Build a colors array out of the needle colors
+            var colors = [this.Get('chart.needle.color')];
+            
+            if (this.Get('chart.needle.extra').length > 0) {
+                for (var i=0; i<this.Get('chart.needle.extra').length; ++i) {
+                    var needle = this.Get('chart.needle.extra')[i];
+                    colors.push(needle[1]);
+                }
+            }
+
+            RGraph.DrawKey(this, this.Get('chart.key'), colors);
         }
         
         
@@ -187,20 +339,6 @@
         if (this.Get('chart.contextmenu')) {
             RGraph.ShowContext(this);
         }
-        
-        /**
-        * If the canvas is annotatable, do install the event handlers
-        */
-        if (this.Get('chart.annotatable')) {
-            RGraph.Annotate(this);
-        }
-        
-        /**
-        * This bit shows the mini zoom window if requested
-        */
-        if (this.Get('chart.zoom.mode') == 'thumbnail' || this.Get('chart.zoom.mode') == 'area') {
-            RGraph.ShowZoomWindow(this);
-        }
 
         
         /**
@@ -209,6 +347,12 @@
         if (this.Get('chart.resizable')) {
             RGraph.AllowResizing(this);
         }
+
+
+        /**
+        * This installs the event listeners
+        */
+        RGraph.InstallEventListeners(this);
         
         /**
         * Fire the RGraph ondraw event
@@ -234,7 +378,7 @@
 
         // Draw the grey border
         this.context.fillStyle = backgroundColor;
-        this.context.arc(this.centerx, this.centery, this.radius, 0.0001, 6.28, false);
+        this.context.arc(this.centerx, this.centery, this.radius, 0.0001, TWOPI, false);
         this.context.fill();
 
         /**
@@ -245,25 +389,27 @@
 
         // Draw a circle
         this.context.strokeStyle = '#666';
-        this.context.arc(this.centerx, this.centery, this.radius, 0, 6.28, false);
+        this.context.arc(this.centerx, this.centery, this.radius, 0, TWOPI, false);
 
         // Now draw a big white circle to make the lines appear as tick marks
         // This is solely for Chrome
         this.context.fillStyle = backgroundColor;
-        this.context.arc(this.centerx, this.centery, this.radius, 0, 6.28, false);
+        this.context.arc(this.centerx, this.centery, this.radius, 0, TWOPI, false);
         this.context.fill();
 
         /**
         * Draw more tickmarks
         */
-        this.context.beginPath();
-        this.context.strokeStyle = '#bbb';
+        if (this.Get('chart.tickmarks')) {
+            this.context.beginPath();
+            this.context.strokeStyle = '#bbb';
         
-        for (var i=0; i<=360; i+=3) {
-            this.context.arc(this.centerx, this.centery, this.radius, 0, RGraph.degrees2Radians(i), false);
-            this.context.lineTo(this.centerx, this.centery);
+            for (var i=0; i<=360; i+=3) {
+                this.context.arc(this.centerx, this.centery, this.radius, 0, i / 57.3, false);
+                this.context.lineTo(this.centerx, this.centery);
+            }
+            this.context.stroke();
         }
-        this.context.stroke();
 
         this.context.beginPath();
         this.context.lineWidth = 1;
@@ -272,7 +418,7 @@
         // Now draw a big white circle to make the lines appear as tick marks
         this.context.fillStyle = backgroundColor;
         this.context.strokeStyle = backgroundColor;
-        this.context.arc(this.centerx, this.centery, this.radius - 5, 0, 6.28, false);
+        this.context.arc(this.centerx, this.centery, this.radius - 5, 0, TWOPI, false);
         this.context.fill();
         this.context.stroke();
 
@@ -288,7 +434,7 @@
         // Redraw the outer circle
         this.context.beginPath();
         this.context.strokeStyle = 'black';
-        this.context.arc(this.centerx, this.centery, this.radius, 0, 6.2830, false);
+        this.context.arc(this.centerx, this.centery, this.radius, 0, TWOPI, false);
         this.context.stroke();
 
         /**
@@ -297,7 +443,7 @@
         if (this.Get('chart.shadow.inner')) {
             this.context.beginPath();
             RGraph.SetShadow(this, this.Get('chart.shadow.inner.color'), this.Get('chart.shadow.inner.offsetx'), this.Get('chart.shadow.inner.offsety'), this.Get('chart.shadow.inner.blur'));
-            this.context.arc(this.centerx, this.centery, this.radius - this.Get('chart.label.area'), 0, 6.28, 0);
+            this.context.arc(this.centerx, this.centery, this.radius - this.Get('chart.label.area'), 0, TWOPI, 0);
             this.context.fill();
             this.context.stroke();
     
@@ -307,10 +453,10 @@
             RGraph.NoShadow(this);
         }
 
-        // Now draw the green area
-        var greengrad = this.canvas.getContext('2d').createRadialGradient(this.canvas.width / 2, this.canvas.height / 2, 0, this.canvas.width / 2, this.canvas.height / 2, this.canvas.width / 2, this.canvas.width / 2);
-        greengrad.addColorStop(0, 'white');
-        greengrad.addColorStop(1, this.Get('chart.green.color'));
+        /*******************************************************
+        * Draw the green area
+        *******************************************************/
+        var greengrad = this.Get('chart.green.color');
 
         // Draw the "tick highlight"
         if (this.Get('chart.tickmarks.highlighted')) {
@@ -319,8 +465,8 @@
             this.context.strokeStyle = greengrad;
             this.context.arc(this.centerx, this.centery, this.radius - 2.5,
             
-                -1.57,
-                ((this.Get('chart.green.max') / this.end) * 6.2830) - 1.57,
+                -1 * HALFPI,
+                (((this.Get('chart.green.max') - this.start)/ (this.end - this.start)) * TWOPI) - HALFPI,
                 0);
 
             this.context.stroke();
@@ -334,8 +480,8 @@
                              this.centerx,
                              this.centery,
                              this.radius - this.Get('chart.label.area'),
-                             -1.57,
-                             ( (this.Get('chart.green.max') / this.end) * 6.2830) - 1.57,
+                             0 - HALFPI,
+                             (((this.Get('chart.green.max') - this.start)/ (this.end - this.start)) * TWOPI) - HALFPI,
                              false
                             );
             this.context.lineTo(this.centerx, this.centery);
@@ -343,10 +489,10 @@
         this.context.fill();
 
 
-        // Now draw the yellow area
-        var yellowgrad = this.canvas.getContext('2d').createRadialGradient(this.canvas.width / 2, this.canvas.height / 2, 0, this.canvas.width / 2, this.canvas.height / 2, this.canvas.width / 2, this.canvas.width / 2);
-        yellowgrad.addColorStop(0, 'white');
-        yellowgrad.addColorStop(1, this.Get('chart.yellow.color'));
+        /*******************************************************
+        * Draw the yellow area
+        *******************************************************/
+        var yellowgrad = this.Get('chart.yellow.color');
 
         // Draw the "tick highlight"
         if (this.Get('chart.tickmarks.highlighted')) {
@@ -355,8 +501,8 @@
             this.context.strokeStyle = yellowgrad;
             this.context.arc(this.centerx, this.centery, this.radius - 2.5, (
             
-                (this.Get('chart.green.max') / this.end) * 6.2830) - 1.57,
-                ((this.Get('chart.red.min') / this.end) * 6.2830) - 1.57,
+                ((this.Get('chart.green.max') - this.start) / (this.end - this.start)) * TWOPI) - HALFPI,
+                (((this.Get('chart.red.min') - this.start) / (this.end - this.start)) * TWOPI) - HALFPI,
                 0);
 
             this.context.stroke();
@@ -370,27 +516,25 @@
                              this.centerx,
                              this.centery,
                              this.radius - this.Get('chart.label.area'),
-                             ( (this.Get('chart.green.max') / this.end) * 6.2830) - 1.57,
-                             ( (this.Get('chart.red.min') / this.end) * 6.2830) - 1.57,
+                             ( ((this.Get('chart.green.max') -this.start) / (this.end - this.start)) * TWOPI) - HALFPI,
+                             ( ((this.Get('chart.red.min') - this.start) / (this.end - this.start)) * TWOPI) - HALFPI,
                              false
                             );
             this.context.lineTo(this.centerx, this.centery);
         this.context.closePath();
         this.context.fill();
 
-        
-        // Now draw the red area if they're defined
-        var redgrad = this.canvas.getContext('2d').createRadialGradient(this.canvas.width / 2, this.canvas.height / 2, 0, this.canvas.width / 2, this.canvas.height / 2, this.canvas.width / 2, this.canvas.width / 2);
-        redgrad.addColorStop(0, 'white');
-        redgrad.addColorStop(1, this.Get('chart.red.color'));
-
+        /*******************************************************
+        * Draw the red area
+        *******************************************************/
+        var redgrad = this.Get('chart.red.color');
 
         // Draw the "tick highlight"
         if (this.Get('chart.tickmarks.highlighted')) {
             this.context.beginPath();
             this.context.lineWidth = 5;
             this.context.strokeStyle = redgrad;
-            this.context.arc(this.centerx, this.centery, this.radius - 2.5, ( (this.Get('chart.red.min') / this.end) * 6.2830) - 1.57,(2 * Math.PI) - (0.5 * Math.PI),0);
+            this.context.arc(this.centerx, this.centery, this.radius - 2.5,(((this.Get('chart.red.min') - this.start) / (this.end - this.start)) * TWOPI) - HALFPI,TWOPI - HALFPI,0);
             this.context.stroke();
             
             this.context.lineWidth = 1;
@@ -403,8 +547,8 @@
                              this.centerx,
                              this.centery,
                              this.radius - this.Get('chart.label.area'),
-                             ( (this.Get('chart.red.min') / this.end) * 6.2830) - 1.57,
-                             6.2830 - (0.25 * 6.2830),
+                             (((this.Get('chart.red.min') - this.start) / (this.end - this.start)) * TWOPI) - HALFPI,
+                             TWOPI - HALFPI,
                              false
                             );
             this.context.lineTo(this.centerx, this.centery);
@@ -415,18 +559,21 @@
         /**
         * Draw the thick border
         */
-        if (this.Get('chart.border')) {
-            var grad = this.context.createRadialGradient(this.centerx, this.centery, this.radius, this.centerx, this.centery, this.radius + 15);
-            grad.addColorStop(1, '#BEBCB0');
-            grad.addColorStop(0.5, '#F0EFEA');
-            grad.addColorStop(0, '#BEBCB0');
+        if (this.Get('chart.border')) {            
+
+            var grad = this.context.createRadialGradient(this.centerx, this.centery, this.radius, this.centerx, this.centery, this.radius + 20);
+            grad.addColorStop(0, this.Get('chart.border.color1'));
+            grad.addColorStop(0.5, this.Get('chart.border.color2'));
+            grad.addColorStop(1, this.Get('chart.border.color3'));
+
             
             this.context.beginPath();
                 this.context.fillStyle = grad;
-                this.context.strokeStyle = grad;
-                this.context.lineWidth = 22;
-                this.context.arc(this.centerx, this.centery, this.radius + 9, 0, 2 * Math.PI, 0);
-            this.context.stroke();
+                this.context.strokeStyle = 'rgba(0,0,0,0)'
+                this.context.lineWidth = 0.001;
+                this.context.arc(this.centerx, this.centery, this.radius + 20, 0, TWOPI, 0);
+                this.context.arc(this.centerx, this.centery, this.radius - 2, TWOPI, 0, 1);
+            this.context.fill();
         }
         
         // Put the linewidth back to what it was
@@ -437,35 +584,47 @@
         * Draw the title if specified
         */
         if (this.Get('chart.title')) {
-            RGraph.DrawTitle(this.canvas, this.Get('chart.title'), this.Get('chart.gutter'), null, this.Get('chart.text.size') + 2);
+            RGraph.DrawTitle(this,
+                             this.Get('chart.title'),
+                             this.centery - this.radius,
+                             null,
+                             this.Get('chart.title.size') ? this.Get('chart.title.size') : this.Get('chart.text.size') + 2);
         }
 
 
         // Draw the big tick marks
-        for (var i=18; i<=360; i+=36) {
-        this.context.beginPath();
-            this.context.strokeStyle = '#999';
-            this.context.lineWidth = 2;
-            this.context.arc(this.centerx, this.centery, this.radius - 1, RGraph.degrees2Radians(i), RGraph.degrees2Radians(i+0.01), false);
-            this.context.arc(this.centerx, this.centery, this.radius - 7, RGraph.degrees2Radians(i), RGraph.degrees2Radians(i+0.01), false);
-            this.context.stroke();
+        if (!this.Get('chart.tickmarks.highlighted')) {
+            for (var i=18; i<=360; i+=36) {
+                this.context.beginPath();
+                    this.context.strokeStyle = '#999';
+                    this.context.lineWidth = 2;
+                    this.context.arc(this.centerx, this.centery, this.radius - 1, RGraph.degrees2Radians(i), RGraph.degrees2Radians(i+0.01), false);
+                    this.context.arc(this.centerx, this.centery, this.radius - 7, RGraph.degrees2Radians(i), RGraph.degrees2Radians(i+0.01), false);
+                this.context.stroke();
+            }
         }
-
     }
 
 
     /**
     * Draws the needle of the odometer
+    * 
+    * @param number value The value to represent
+    * @param string color The color of the needle
+    * @param number       The OPTIONAL length of the needle
     */
     RGraph.Odometer.prototype.DrawNeedle = function (value, color)
     {
+        // The optional length of the needle
+        var length = arguments[2] ? arguments[2] : this.radius - this.Get('chart.label.area');
+
         // ===== First draw a grey background circle =====
         
         this.context.fillStyle = '#999';
 
         this.context.beginPath();
             this.context.moveTo(this.centerx, this.centery);
-            this.context.arc(this.centerx, this.centery, 10, 0, 6.28, false);
+            this.context.arc(this.centerx, this.centery, 10, 0, TWOPI, false);
             this.context.fill();
         this.context.closePath();
 
@@ -479,7 +638,7 @@
         // Draw the centre bit
         this.context.beginPath();
             this.context.moveTo(this.centerx, this.centery);
-            this.context.arc(this.centerx, this.centery, 8, 0, 6.28, false);
+            this.context.arc(this.centerx, this.centery, 8, 0, TWOPI, false);
             this.context.fill();
         this.context.closePath();
         
@@ -500,21 +659,22 @@
                     this.context.moveTo(this.centerx, this.centery);
                     
                     if (this.Get('chart.needle.tail')) {
+
                         this.context.arc(this.centerx,
                                          this.centery,
                                          20,
-                                          (((value / this.range) * 360) + 90) / 57.3,
-                                         (((value / this.range) * 360) + 90 + 0.01) / 57.3, // The 0.01 avoids a bug in ExCanvas and Chrome 6
+                                          (((value / this.range) * 360) + 90) / (180 / PI),
+                                         (((value / this.range) * 360) + 90 + 0.01) / (180 / PI), // The 0.01 avoids a bug in ExCanvas and Chrome 6
                                          false
                                         );
                     }
-    
+
                 // Draw the long bit on the opposite side
                 this.context.arc(this.centerx,
                                  this.centery,
-                                 this.radius - this.Get('chart.label.area') - 10,
-                                 (((value / this.range) * 360) - 90) / 57.3,
-                                 (((value / this.range) * 360) - 90 + 0.1 ) / 57.3, // The 0.1 avoids a bug in ExCanvas and Chrome 6
+                                 length - 10,
+                                 (((value / this.range) * 360) - 90) / (180 / PI),
+                                 (((value / this.range) * 360) - 90 + 0.1 ) / (180 / PI), // The 0.1 avoids a bug in ExCanvas and Chrome 6
                                  false
                                 );
             this.context.closePath();
@@ -529,12 +689,29 @@
             this.context.lineEnd  = 'square';
             this.context.lineJoin = 'miter';
 
+            /**
+            * This draws the version of the pointer that becomes the border
+            */
+            this.context.beginPath();
+                this.context.fillStyle = this.Get('chart.needle.triangle.border');
+                this.context.arc(this.centerx, this.centery, 11, (((value / this.range) * 360)) / 57.3, ((((value / this.range) * 360)) + 0.01) / 57.3, 0);
+                this.context.arc(this.centerx, this.centery, 11, (((value / this.range) * 360) + 180) / 57.3, ((((value / this.range) * 360) + 180) + 0.01)/ 57.3, 0);
+                this.context.arc(this.centerx, this.centery, length - 5, (((value / this.range) * 360) - 90) / 57.3, ((((value / this.range) * 360) - 90) / 57.3) + 0.01, 0);
+            this.context.closePath();
+            this.context.fill();
+
+            this.context.beginPath();
+                this.context.arc(this.centerx, this.centery, 15, 0, TWOPI, 0);
+            this.context.closePath();
+            this.context.fill();
+
+            // This draws the pointer
             this.context.beginPath();
                 this.context.strokeStyle = 'black';
                 this.context.fillStyle = color;
                 this.context.arc(this.centerx, this.centery, 7, (((value / this.range) * 360)) / 57.3, ((((value / this.range) * 360)) + 0.01) / 57.3, 0);
                 this.context.arc(this.centerx, this.centery, 7, (((value / this.range) * 360) + 180) / 57.3, ((((value / this.range) * 360) + 180) + 0.01)/ 57.3, 0);
-                this.context.arc(this.centerx, this.centery, this.radius - this.Get('chart.label.area') - 10, (((value / this.range) * 360) - 90) / 57.3, ((((value / this.range) * 360) - 90) / 57.3) + 0.01, 0);
+                this.context.arc(this.centerx, this.centery, length - 13, (((value / this.range) * 360) - 90) / 57.3, ((((value / this.range) * 360) - 90) / 57.3) + 0.01, 0);
             this.context.closePath();
             this.context.stroke();
             this.context.fill();
@@ -543,7 +720,7 @@
             * This is here to accomodate the MSIE/ExCanvas combo
             */
             this.context.beginPath();
-                this.context.arc(this.centerx, this.centery, 7, 0, 6.28, 0);
+                this.context.arc(this.centerx, this.centery, 7, 0, TWOPI, 0);
             this.context.closePath();
             this.context.fill();
         }
@@ -551,11 +728,11 @@
 
         this.context.stroke();
         this.context.fill();
-            
+
         // Draw the mini center circle
         this.context.beginPath();
         this.context.fillStyle = color;
-            this.context.arc(this.centerx, this.centery, this.Get('chart.needle.type') == 'pointer' ? 7 : 12, 0.01, 6.2830, false);
+            this.context.arc(this.centerx, this.centery, this.Get('chart.needle.type') == 'pointer' ? 7 : 12, 0.01, TWOPI, false);
         this.context.fill();
 
         // This draws the arrow at the end of the line
@@ -568,8 +745,14 @@
             this.context.lineCap  = 'butt';
 
             this.context.beginPath();
-                this.context.arc(this.centerx, this.centery, this.radius - this.Get('chart.label.area')-5, (((value / this.range) * 360) - 90) / 57.3, (((value / this.range) * 360) - 90 + 0.1) / 57.3, false);
-                this.context.arc(this.centerx, this.centery, this.radius - this.Get('chart.label.area') - 20, RGraph.degrees2Radians( ((value / this.range) * 360) - 85), RGraph.degrees2Radians( ((value / this.range) * 360) - 95), 1);
+                this.context.arc(this.centerx, this.centery, length - 5, (((value / this.range) * 360) - 90) / 57.3, (((value / this.range) * 360) - 90 + 0.1) / 57.3, false);
+
+                this.context.arc(this.centerx,
+                                 this.centery,
+                                 length - 20,
+                                 RGraph.degrees2Radians( ((value / this.range) * 360) - (length < 60 ? 80 : 85) ),
+                                 RGraph.degrees2Radians( ((value / this.range) * 360) - (length < 60 ? 100 : 95) ),
+                                 1);
             this.context.closePath();
     
             this.context.fill();
@@ -599,6 +782,7 @@
         var centerx   = this.centerx;
         var centery   = this.centery;
         var r         = this.radius - (this.Get('chart.label.area') / 2);
+        var start     = this.start;
         var end       = this.end;
         var decimals  = this.Get('chart.scale.decimals');
         var labels    = this.Get('chart.labels');
@@ -617,9 +801,9 @@
                 RGraph.Text(context,
                             font,
                             size,
-                            centerx + (Math.cos(((i / labels.length) * 6.28) - 1.57) * (this.radius - (this.Get('chart.label.area') / 2) ) ), // Sin A = Opp / Hyp
-                            centery + (Math.sin(((i / labels.length) * 6.28) - 1.57) * (this.radius - (this.Get('chart.label.area') / 2) ) ), // Cos A = Adj / Hyp
-                            String(units_pre + labels[i] + units_post),
+                            centerx + (Math.cos(((i / labels.length) * TWOPI) - HALFPI) * (this.radius - (this.Get('chart.label.area') / 2) ) ), // Sin A = Opp / Hyp
+                            centery + (Math.sin(((i / labels.length) * TWOPI) - HALFPI) * (this.radius - (this.Get('chart.label.area') / 2) ) ), // Cos A = Adj / Hyp
+                            String(labels[i]),
                             'center',
                             'center');
             }
@@ -628,16 +812,16 @@
         * If not, use the maximum value
         */
         } else {
-            RGraph.Text(context, font, size, centerx + (0.588 * r ), centery - (0.809 * r ), String(units_pre + (end * (1/10)).toFixed(decimals) + units_post), 'center', 'center', false, 36);
-            RGraph.Text(context, font, size, centerx + (0.951 * r ), centery - (0.309 * r), String(units_pre + (end * (2/10)).toFixed(decimals) + units_post), 'center', 'center', false, 72);
-            RGraph.Text(context, font, size, centerx + (0.949 * r), centery + (0.287 * r), String(units_pre + (end * (3/10)).toFixed(decimals) + units_post), 'center', 'center', false, 108);
-            RGraph.Text(context, font, size, centerx + (0.588 * r ), centery + (0.809 * r ), String(units_pre + (end * (4/10)).toFixed(decimals) + units_post), 'center', 'center', false, 144);
-            RGraph.Text(context, font, size, centerx, centery + r, String(units_pre + (end * (5/10)).toFixed(decimals) + units_post), 'center', 'center', false, 180);
-            RGraph.Text(context, font, size, centerx - (0.588 * r ), centery + (0.809 * r ), String(units_pre + (end * (6/10)).toFixed(decimals) + units_post), 'center', 'center', false, 216);
-            RGraph.Text(context, font, size, centerx - (0.949 * r), centery + (0.300 * r), a = String(units_pre + (end * (7/10)).toFixed(decimals) + units_post), 'center', 'center', false, 252);
-            RGraph.Text(context, font, size, centerx - (0.951 * r), centery - (0.309 * r), String(units_pre + (end * (8/10)).toFixed(decimals) + units_post), 'center', 'center', false, 288);
-            RGraph.Text(context, font, size, centerx - (0.588 * r ), centery - (0.809 * r ), String(units_pre + (end * (9/10)).toFixed(decimals) + units_post), 'center', 'center', false, 324);
-            RGraph.Text(context, font, size, centerx, centery - r, this.Get('chart.zerostart') ? units_pre + '0' : String(units_pre + (end * (10/10)).toFixed(decimals) + units_post), 'center', 'center', false, 360);
+            RGraph.Text(context, font, size, centerx + (0.588 * r ), centery - (0.809 * r ), RGraph.number_format(this, (((end - start) * (1/10)) + start).toFixed(decimals), units_pre, units_post), 'center', 'center', false, 36);
+            RGraph.Text(context, font, size, centerx + (0.951 * r ), centery - (0.309 * r), RGraph.number_format(this, (((end - start) * (2/10)) + start).toFixed(decimals), units_pre, units_post), 'center', 'center', false, 72);
+            RGraph.Text(context, font, size, centerx + (0.949 * r), centery + (0.287 * r), RGraph.number_format(this, (((end - start) * (3/10)) + start).toFixed(decimals), units_pre, units_post), 'center', 'center', false, 108);
+            RGraph.Text(context, font, size, centerx + (0.588 * r ), centery + (0.809 * r ), RGraph.number_format(this, (((end - start) * (4/10)) + start).toFixed(decimals), units_pre, units_post), 'center', 'center', false, 144);
+            RGraph.Text(context, font, size, centerx, centery + r, RGraph.number_format(this, (((end - start) * (5/10)) + start).toFixed(decimals),units_pre, units_post), 'center', 'center', false, 180);
+            RGraph.Text(context, font, size, centerx - (0.588 * r ), centery + (0.809 * r ), RGraph.number_format(this, (((end - start) * (6/10)) + start).toFixed(decimals), units_pre, units_post), 'center', 'center', false, 216);
+            RGraph.Text(context, font, size, centerx - (0.949 * r), centery + (0.300 * r), RGraph.number_format(this, (((end - start) * (7/10)) + start).toFixed(decimals), units_pre, units_post), 'center', 'center', false, 252);
+            RGraph.Text(context, font, size, centerx - (0.951 * r), centery - (0.309 * r), RGraph.number_format(this, (((end - start) * (8/10)) + start).toFixed(decimals), units_pre, units_post), 'center', 'center', false, 288);
+            RGraph.Text(context, font, size, centerx - (0.588 * r ), centery - (0.809 * r ), RGraph.number_format(this, (((end - start) * (9/10)) + start).toFixed(decimals), units_pre, units_post), 'center', 'center', false, 324);
+            RGraph.Text(context, font, size, centerx, centery - r, this.Get('chart.zerostart') ? RGraph.number_format(this, this.start.toFixed(decimals), units_pre, units_post) : RGraph.number_format(this, (((end - start) * (10/10)) + start).toFixed(decimals), units_pre, units_post), 'center', 'center', false, 360);
         }
         
         this.context.fill();
@@ -647,6 +831,153 @@
         */
         if (this.Get('chart.value.text')) {
             context.strokeStyle = 'black';
-            RGraph.Text(context, font, size + 2, centerx, centery + size + 2 + 10, String(this.Get('chart.value.units.pre') + this.value + this.Get('chart.value.units.post')), 'center', 'center', true,  null, 'white');
+            RGraph.Text(context, font, size + 2, centerx, centery + size + 2 + 10, String(this.Get('chart.value.units.pre') + this.value.toFixed(this.Get('chart.value.text.decimals')) + this.Get('chart.value.units.post')), 'center', 'center', true,  null, 'white');
         }
+    }
+
+
+
+    /**
+    * A placeholder function
+    * 
+    * @param object The event object
+    */
+    RGraph.Odometer.prototype.getShape = function (e)
+    {
+    }
+
+
+
+    /**
+    * This function returns the pertinent value at the point of click
+    * 
+    * @param object The event object
+    */
+    RGraph.Odometer.prototype.getValue = function (e)
+    {
+        var mouseXY = RGraph.getMouseXY(e)
+        var angle   = RGraph.getAngleByXY(this.centerx, this.centery, mouseXY[0], mouseXY[1]);
+            angle  += HALFPI;
+        
+        if (mouseXY[0] >= this.centerx && mouseXY[1] <= this.centery) {
+            angle -= TWOPI;
+        }
+
+        var value = ((angle / TWOPI) * (this.max - this.min)) + this.min;
+
+        return value;
+    }
+
+
+
+    /**
+    * The getObjectByXY() worker method. Don't call this call:
+    * 
+    * RGraph.ObjectRegistry.getObjectByXY(e)
+    * 
+    * @param object e The event object
+    */
+    RGraph.Odometer.prototype.getObjectByXY = function (e)
+    {
+        var mouseXY = RGraph.getMouseXY(e);
+        var radius  = RGraph.getHypLength(this.centerx, this.centery, mouseXY[0], mouseXY[1]);
+
+        if (
+               mouseXY[0] > (this.centerx - this.radius)
+            && mouseXY[0] < (this.centerx + this.radius)
+            && mouseXY[1] > (this.centery - this.radius)
+            && mouseXY[1] < (this.centery + this.radius)
+            && radius <= this.radius
+            ) {
+
+            return this;
+        }
+    }
+
+
+
+    /**
+    * This method handles the adjusting calculation for when the mouse is moved
+    * 
+    * @param object e The event object
+    */
+    RGraph.Odometer.prototype.Adjusting_mousemove = function (e)
+    {
+        /**
+        * Handle adjusting for the Bar
+        */
+        if (RGraph.Registry.Get('chart.adjusting') && RGraph.Registry.Get('chart.adjusting').uid == this.uid) {
+            this.value = this.getValue(e);
+            RGraph.Clear(this.canvas);
+            RGraph.RedrawCanvas(this.canvas);
+            RGraph.FireCustomEvent(this, 'onadjust');
+        }
+    }
+
+
+
+    /**
+    * This method returns the appropriate angle for a value
+    * 
+    * @param number value The value
+    */
+    RGraph.Odometer.prototype.getAngle = function (value)
+    {
+        // Higher than max or lower than min
+        if (value > this.max || value < this.min) {
+            return null;
+        }
+
+        var angle = (((value - this.min) / (this.max - this.min)) * TWOPI);
+            angle -= HALFPI;
+
+        return angle;
+    }
+
+
+
+    /**
+    * This allows for easy specification of gradients
+    */
+    RGraph.Odometer.prototype.parseColors = function ()
+    {
+        var props = this.properties;
+
+        // Parse the basic colors
+        props['chart.green.color']  = this.parseSingleColorForGradient(props['chart.green.color']);
+        props['chart.yellow.color'] = this.parseSingleColorForGradient(props['chart.yellow.color']);
+        props['chart.red.color']    = this.parseSingleColorForGradient(props['chart.red.color']);
+    }
+
+
+
+    /**
+    * This parses a single color value
+    */
+    RGraph.Odometer.prototype.parseSingleColorForGradient = function (color)
+    {
+        var canvas  = this.canvas;
+        var context = this.context;
+        
+        if (!color || typeof(color) != 'string') {
+            return color;
+        }
+
+        if (color.match(/^gradient\((.*)\)$/i)) {
+
+            var parts = RegExp.$1.split(':');
+
+            // Create the gradient
+            var grad = context.createRadialGradient(this.centerx, this.centery, 0, this.centerx, this.centery, this.radius);
+
+            var diff = 1 / (parts.length - 1);
+
+            grad.addColorStop(0, RGraph.trim(parts[0]));
+
+            for (var j=1; j<parts.length; ++j) {
+                grad.addColorStop(j * diff, RGraph.trim(parts[j]));
+            }
+        }
+
+        return grad ? grad : color;
     }
