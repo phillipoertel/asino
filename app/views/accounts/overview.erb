@@ -64,7 +64,7 @@
   
   <div class="m20"></div>
   
-  <table style="float:left;width:400px;display:block;">
+  <table class="table" style="float:left;width:400px;display:block;">
     <tr>
 	  <td class="ar em" colspan="3">
 	    Ausgaben: <%= currency @expenses.to_s %><br/>
@@ -76,7 +76,7 @@
     <%= render :partial => 'categories/categorized_items', :locals => {:categories => @expense_categories, :container => 'expenses'} %>
   </table>
 
-  <table style="float:left;width:400px;display:block;">
+  <table class="table" style="float:left;width:400px;display:block;">
     <tr>
 	  <td class="ar em" colspan="3">
 	    Einnahmen: + <%= currency @income %><br/>
