@@ -14,7 +14,7 @@
 
     <%= favicon_link_tag '/assets/favicon.ico', :rel => 'shortcut icon' %>
   </head>
-  <body>
+  <body data-initializer="<%= controller.controller_name.camelize + controller.action_name.camelize %>">
 
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
