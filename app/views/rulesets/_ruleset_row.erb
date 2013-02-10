@@ -8,7 +8,7 @@
 	<% end %>
   </td>
   <td class="ac"><%= raw('&#10004;') if ruleset.active %></td>
-  <td class="ar">
+  <td class="text-right">
 	<%= link_to image_tag('icons/edit.png'), edit_ruleset_path(ruleset.id) %>
 	<%= link_to image_tag('icons/delete.png'), ruleset, :method => :delete, 
 	                                                    :remote => true,

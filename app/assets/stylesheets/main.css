@@ -38,3 +38,8 @@ footer {
 .va {
 	vertical-align: center;
 }
+
+
+.text-right {
+	text-align: right !important;
+}

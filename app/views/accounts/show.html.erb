@@ -21,11 +21,11 @@
 		  <% end %>
 		</div>
 	</td>
-      <td colspan="2" class="ar"><b>Kontostand: <%= currency @sum %></b></td>
+      <td colspan="2" class="text-right"><b>Kontostand: <%= currency @sum %></b></td>
       <td colspan="3"></td>
   </tr>
   <tr>
-	    <td class="ar" colspan="2">
+	    <td class="text-right" colspan="2">
   		  <% if @income %>
   		    &nbsp;<br/>
   	        Einnahmen: 
@@ -69,11 +69,11 @@
   <table class="table">
     <thead>
       <tr>
-	      <th class="ar"><%= sortlink('Datum', 'date') %></th>
+	      <th class="text-right"><%= sortlink('Datum', 'date') %></th>
 	      <th class="al"><%= sortlink('Empfänger', 'payee') %></th>
 	      <th class="al"><%= sortlink('Beschreibung', 'descr') %></th>
 	      <th class="al"><%= 'Konto' unless @account %></th>
-	      <th class="ar"><%= sortlink('Saldo', 'saldo') %></th>
+	      <th class="text-right"><%= sortlink('Saldo', 'saldo') %></th>
 	      <th class="al">Kategorie</th>
 	      <th style="width:60px;"></th>
       </tr>
