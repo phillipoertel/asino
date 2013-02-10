@@ -64,10 +64,6 @@ class ItemsController < ApplicationController
 
   def destroy
     @item.destroy
-
-    render :update do |page|
-      page.visual_effect :blind_up, "item_#{@item.id}", :duration => 0.5
-    end
   end
   
   
@@ -78,11 +74,8 @@ class ItemsController < ApplicationController
     @item.category_id = category.id
     @item.update_attribute(:category_id, params[:item][:category_id])
     @item.update_attribute(:transfer, (category.transfer ? true : false))
-    @item.reload
-    render :update do |page|
-      page.replace_html "item_#{item.id}", :partial => 'items/item_row_cells', :locals => {:item => @item, 
-                                                                                           :account => @account}
-    end
+
+    render :nothing => true
   end
   
   

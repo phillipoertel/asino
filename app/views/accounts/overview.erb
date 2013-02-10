@@ -17,7 +17,7 @@
       {
           var p = new RGraph.Pie('expenseGraph', [<%= @expense_categories.collect {|m| m.sum * -1}.join(',') %>]);
           p.Set('chart.title', 'Ausgaben')
-          p.Set('chart.labels', ['<%= @expense_categories.collect {|d| "#{d.percent}% #{d.name}" if d.percent > 1}.join("','") %>']);
+          p.Set('chart.labels', ['<%= raw @expense_categories.collect {|d| "#{d.percent}% #{d.name}" if d.percent > 1}.join('\',\'') %>']);
           p.Set('chart.gutter', 120)
           p.Set('chart.linewidth', 1);
           p.Set('chart.stroke', '#fff');
