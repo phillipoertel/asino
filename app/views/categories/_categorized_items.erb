@@ -17,7 +17,7 @@
     <td colspan="4">  
       <div>
       <table class="category_sub">
-        <% category.items.each do |item| %>
+        <% category.items.for_date(@enddate).each do |item| %>
         <tr>
           <td style="width:175px;">
             <%= item.payee %>
