@@ -3,27 +3,31 @@
   
   <% if user_signed_in? %>
   <div>
-      <%= link_to 'Daten jetzt sichern', backups_path, :method => :post, :class => 'button' %>
+      <%= link_to 'Daten jetzt sichern', backups_path, :method => :post, :class => 'btn btn-primary' %>
   </div>
   <br/>
   <% end %>
   
   
   <% unless @backups.empty? %>
-  <table>
-    <tr>
-      <th class="al">Dateiname</th>
-      <th class="text-right">Erzeugt</th>
-      <th></th>
-    </tr>
-  
-  <% @backups.each do |backup| %>
-    <tr>
-      <td><%= backup.file_name %></td>
-      <td class="text-right"><%= backup.created_at.strftime("%d.%m.%Y %H:%M:%S") %></td>
-      <td class="text-right"><%= link_to image_tag('icons/delete.png'), backup, :confirm => 'Are you sure?', :method => :delete %></td>
-    </tr>
-  <% end %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="al">Dateiname</th>
+        <th class="text-right">Erzeugt</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+    <% @backups.each do |backup| %>
+      <tr>
+        <td><%= backup.file_name %></td>
+        <td class="text-right"><%= backup.created_at.strftime("%d.%m.%Y %H:%M:%S") %></td>
+        <td class="text-right"><%= link_to image_tag('icons/delete.png'), backup, :confirm => 'Are you sure?', :method => :delete %></td>
+      </tr>
+    <% end %>
+    </tbody>
   </table>
   <% else %>
     <div class="m20">

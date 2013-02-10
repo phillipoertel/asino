@@ -3,7 +3,7 @@ class BackupsController < ApplicationController
   def index
     @backups = Backup.order('created_at desc')
     
-    flash[:warning] = "You really, really should do a backup now!" if user_signed_in? and current_user.should_backup?
+    flash[:alert] = "Sie sollten eine Sicherung Ihrer Daten anlegen, jetzt!" if user_signed_in? and current_user.should_backup?
 
     respond_to do |format|
       format.html # index.html.erb
@@ -25,7 +25,7 @@ class BackupsController < ApplicationController
       if result and backup.save
         format.html { redirect_to(backups_path, :notice => 'Sicherung wurde erfolgreich gespeichert.') }
       else
-        format.html { redirect_to(backups_path, :warning => 'Sicherung wurde NICHT gespeichert!') }
+        format.html { redirect_to(backups_path, :alert => 'Sicherung wurde NICHT gespeichert!') }
       end
     end
   end

@@ -2,7 +2,7 @@
 
 <div class="column right">
   <div style="width:400px;margin:0 0 150px 0;">
-    <% unless flash[:warning] %>
+    <% unless flash[:alert] %>
       <h1>Ihre Daten wurden gesichert.</h1>
     <% else %>
       <%= note 'Uh-oh!', 'Die Sicherung ist fehlgeschlagen.<br/>Vermutlich hat Ihr Serverprozess keine Zugriffsrechte auf mysqldump.' %>
