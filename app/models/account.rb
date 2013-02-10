@@ -10,13 +10,15 @@ class Account < ActiveRecord::Base
   validates_uniqueness_of :title, :message => "Dieser Kontoname wird bereits verwendet!"
   validates_inclusion_of :importer, in: AccountImporter::TYPES
   
-  # HACK -- reusing saldomat's field to store the outbank file
+  # HACK: reusing Saldomat's config field to store the outbank file name, as well.
+  # when adding HBCI, change this to use store to store all config settings. it's the most flexible
+  # way to store different attributes in an AR (see store docs here:
+  # http://apidock.com/rails/ActiveRecord/Store) 
   def outbank_file_name
     self.feed
   end
   
   def import
-    import_class = AccountImporter.for(self.importer)
-    import_class.new(self).import
+    AccountImporter.import(self)
   end
 end
