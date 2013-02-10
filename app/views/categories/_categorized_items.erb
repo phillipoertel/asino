@@ -1,8 +1,8 @@
 <% categories.each do |category| %>
   <% next if !category or category.sum == 0 %>
   <tr class="<%= cycle('even', 'odd') %> overview_category">
-	  <td style="width:150px;">
-      <%= link_to_function "#{category.name}", "Element.toggle('#{container}_category_#{category.object_id}')" %>
+    <td style="width:150px;">
+      <%= link_to(category.name, 'javascript:', {:'data-subcategory' => "#{container}_category_#{category.object_id}"}) %>
     </td>
     <td class="ar" style="width:20px;"><%= category.percent %>%</td>
     <td class="ar" style="width:80px;">
@@ -11,12 +11,12 @@
     <td class="ar medium" style="width:100px;">
       <%= currency(category.sum - category.lastmonth_sum) if category.lastmonth_sum  %>
       <%= trend_img(category.sum - category.lastmonth_sum) %>
-	  </td>
+    </td>
   </tr>
   <tr class="category_sub" id="<%= container %>_category_<%= category.object_id %>" style="display:none;">
-	  <td colspan="4">  
-	    <div>
-	    <table class="category_sub">
+    <td colspan="4">  
+      <div>
+      <table class="category_sub">
         <% category.items.each do |item| %>
         <tr>
           <td style="width:175px;">
@@ -32,5 +32,5 @@
       </table>
       </div>
     </td>
-	</tr>
+  </tr>
 <% end %>
