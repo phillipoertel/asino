@@ -1,4 +1,6 @@
 class BackupsController < ApplicationController
+
+  before_filter :load_accounts, :only => [:index]
   
   def index
     @backups = Backup.order('created_at desc')
