@@ -31,8 +31,10 @@
                 <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Konten <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                   <li><%= link_to 'Alle Konten', accounts_path %></li>
+                  <% if @accounts %>
                   <% @accounts.each do |acc| %>
                     <li><%= link_to acc.title, acc, :class => "#{'active' if acc == @account}" %></li>
+                  <% end %>
                   <% end %>
                   <li><%= link_to 'Neues Konto', new_account_path %></li>
                 </ul>
