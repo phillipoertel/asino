@@ -6,7 +6,7 @@
   <%= error_messages_for @item %>
 
   <p>
-	<%= f.label :account_id, 'Konto' %>:  
+	<%= f.label :account_id, 'Konto: ' %>
 	<% if @account %>
       <%= @account.title %>
       <%= f.hidden_field :account_id, :value => @account.id %>

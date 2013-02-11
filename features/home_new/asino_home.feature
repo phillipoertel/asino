@@ -12,7 +12,7 @@ Feature: Home page
     Then I should see "Sie haben noch keine Konten angelegt."
     And I should see "Neues Konto anlegen"
     And I should see "Willkommen" within "#note"
-    But I should not see "Neue Zahlung" within "#sidebar"
+    But I should not see "Neue Zahlung"
 
   Scenario: Visiting the homepage without an account I should be able to create an account
     When I go to the home page

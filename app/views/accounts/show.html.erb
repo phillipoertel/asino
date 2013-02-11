@@ -19,6 +19,11 @@
 		      <%= submit_tag 'Suche', :class => 'btn' %>
         </div>
 		  <% end %>
+      <% if @account %>
+        <%= link_to 'Neue Zahlung', new_account_item_path(@account), :class => 'btn' %>
+      <% else %>
+        <%= link_to 'Neue Zahlung', new_item_path(), :class => 'btn' %>
+      <% end %>
 		</div>
 	</td>
       <td colspan="2" class="text-right"><b>Kontostand: <%= currency @sum %></b></td>
