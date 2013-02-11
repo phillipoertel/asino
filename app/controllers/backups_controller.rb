@@ -1,11 +1,17 @@
 class BackupsController < ApplicationController
 
-  before_filter :load_accounts, :only => [:index]
-  
   def index
     @backups = Backup.order('created_at desc')
+    if user_signed_in? and current_user.should_backup?
+      flash[:alert] = "Sie sollten eine Sicherung Ihrer Daten anlegen, jetzt!" 
+    end
     
-    flash[:alert] = "Sie sollten eine Sicherung Ihrer Daten anlegen, jetzt!" if user_signed_in? and current_user.should_backup?
+    if mysqldump_installed?
+      @button_enabled = true
+    else
+      flash[:alert] = "Bitte installieren sie mysqldump, um Backups anzulegen." 
+      @button_enabled = false
+    end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -14,21 +20,17 @@ class BackupsController < ApplicationController
   end
   
   def create
-    conf = Rails.configuration.database_configuration[Rails.env]
-
-    backup = Backup.new(params[:backup])
-    file_name = "asino_backup_#{Rails.env}_#{Time.now.strftime('%Y%m%d%H%M%S')}.sql"
-    path = Asino3::Application.config.backup_dir
-    Rails.logger.debug "mysqldump --user=#{conf['username']} --password=#{conf['dpassword']} --database #{conf['database']} > #{path}/#{file_name}"
-    result = system "mysqldump --user=#{conf['username']} --password=#{conf['dpassword']} --database #{conf['database']} > #{path}/#{file_name}"
-    backup.file_name = file_name
-
-    respond_to do |format|
-      if result and backup.save
-        format.html { redirect_to(backups_path, :notice => 'Sicherung wurde erfolgreich gespeichert.') }
-      else
-        format.html { redirect_to(backups_path, :alert => 'Sicherung wurde NICHT gespeichert!') }
-      end
-    end
+    Backup.create!
+    redirect_to(backups_path, :notice => 'Sicherung wurde erfolgreich gespeichert.')
+  rescue
+    redirect_to(backups_path, :alert => 'Sicherung wurde NICHT gespeichert!')
   end
+  
+  private
+  
+    def mysqldump_installed?
+      system("command -v mysqldump > /dev/null")
+      # $? is the return value of the last system call, 0 means "all fine" in unix lingo.
+      $? == 0
+    end
 end
