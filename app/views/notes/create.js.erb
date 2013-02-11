@@ -1,0 +1,6 @@
+$('#item_<%= @item.id %> .item-description').append('<%= link_to image_tag("icons/note.png"), 
+														 "#",
+														 :class => "show-note-modal", 
+														 'data-item-id' => @item.id,
+														 :id => "note_#{@item.id}" %>')
+$('#addNote').modal('hide')
