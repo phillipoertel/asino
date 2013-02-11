@@ -29,7 +29,10 @@ class AccountImporter::Outbank
       attributes[:created_at]  = entry.booked_on.to_datetime + 12.hours
       attributes[:description] = entry.description
       attributes[:amount]      = entry.amount.to_f / 100
-      attributes[:category_id] = Category.find_or_create_by_name(entry.category).id
+      attributes[:payee]       = entry.payee
+      if entry.category
+        attributes[:category_id] = Category.find_or_create_by_name(entry.category).id
+      end
       attributes
     end
     

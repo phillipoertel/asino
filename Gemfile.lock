@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/phillipoertel/outbanker.git
-  revision: 122aa19077e7df8ccffea9af63ad25637e694b0e
+  revision: 33c1b28fa3a9be138753ef26d610c5a323178338
   specs:
-    outbanker (0.0.1)
+    outbanker (0.0.3)
       rake
       turn
 
