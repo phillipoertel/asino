@@ -21,3 +21,7 @@ group :cucumber, :test do
   gem 'factory_girl'
   gem 'factory_girl_rails'
 end
+
+group :assets do
+  gem 'uglifier'
+end 

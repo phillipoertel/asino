@@ -17,7 +17,7 @@ class BackupsController < ApplicationController
     conf = Rails.configuration.database_configuration[Rails.env]
 
     backup = Backup.new(params[:backup])
-    file_name = "asino_backup_#{Time.now.strftime('%Y%m%d%H%M%S')}.sql"
+    file_name = "asino_backup_#{Rails.env}_#{Time.now.strftime('%Y%m%d%H%M%S')}.sql"
     path = Asino3::Application.config.backup_dir
     Rails.logger.debug "mysqldump --user=#{conf['username']} --password=#{conf['dpassword']} --database #{conf['database']} > #{path}/#{file_name}"
     result = system "mysqldump --user=#{conf['username']} --password=#{conf['dpassword']} --database #{conf['database']} > #{path}/#{file_name}"
