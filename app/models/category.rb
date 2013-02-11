@@ -5,4 +5,16 @@ class Category < ActiveRecord::Base
   belongs_to :category
   
   attr_accessor :account_id, :sum, :lastmonth_sum, :percent
+  
+  def has_subcategories?
+    !categories.empty?
+  end
+  
+  def has_parent_category?
+    !!category
+  end
+  
+  def self.top_level
+    where(:category_id => nil).order('name').includes(:categories)
+  end
 end
