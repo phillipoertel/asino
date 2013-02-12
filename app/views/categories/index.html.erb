@@ -20,7 +20,7 @@
         <td colspan="2"><%= link_to h(category.name), category %></td>
         <td class="text-right"><%= category.items.size %></td>
         <td class="text-right">
-          <%= link_to raw('<i class="icon-pencil"></i>'), edit_category_path(category) %>
+          <%= link_to raw('<i class="icon-pencil"></i>'), edit_category_path(category), :title => 'Bearbeiten' %>
           <%= link_to raw('<i class="icon-trash"></i>'), category, :confirm => 'Are you sure?', :method => :delete %>
         </td>
       </tr>
@@ -30,7 +30,7 @@
         <td><%= link_to h(subcategory.name), subcategory %></td>
         <td class="text-right"><%= category.items.size %></td>
         <td class="text-right">
-          <%= link_to raw('<i class="icon-pencil"></i>'), edit_category_path(subcategory) %>
+          x<%= link_to raw('<i class="icon-pencil"></i>'), edit_category_path(subcategory), :title => 'Bearbeiten' %>
           <%= link_to raw('<i class="icon-trash"></i>'), category_path(subcategory), :confirm => 'Are you sure?', :method => :delete %>
         </td>
       </tr>
