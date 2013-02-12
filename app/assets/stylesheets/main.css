@@ -24,6 +24,10 @@ select {
 	background: #eee;
 }
 
+.table-nohover tr:hover td {
+	background: transparent;
+}
+
 footer {
 	border-top: 1px solid #eee;
 	text-align: center;
