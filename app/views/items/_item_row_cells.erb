@@ -23,10 +23,10 @@
   </td>
 <% end %>
 <td class="ar<%= ' transfer' if item.transfer %>">
-  <%= link_to image_tag('icons/note_add.png'), '#', :class => 'add-note-modal', 
+  <%= link_to raw('<i class="icon-comment"></i>'), '#', :class => 'add-note-modal', 
                                                     'data-item-id' => item.id,
                                                     :title => "Notiz hinzufügen" %>
-  <%= link_to image_tag('icons/edit.png'), edit_item_path(item), :title => 'Bearbeiten' %>
-  <%= link_to image_tag('icons/delete.png'), item, :method => :delete, :remote => true, :title => 'Löschen' %>
+  <%= link_to raw('<i class="icon-pencil"></i>'), edit_item_path(item), :title => 'Bearbeiten' %>
+  <%= link_to raw('<i class="icon-trash"></i>'), item, :method => :delete, :remote => true, :title => 'Löschen' %>
 
 </td>

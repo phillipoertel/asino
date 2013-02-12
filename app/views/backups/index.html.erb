@@ -25,7 +25,7 @@
       <tr>
         <td><%= backup.file_name %></td>
         <td class="text-right"><%= backup.created_at.strftime("%d.%m.%Y %H:%M:%S") %></td>
-        <td class="text-right"><%= link_to image_tag('icons/delete.png'), backup, :confirm => 'Are you sure?', :method => :delete %></td>
+        <td class="text-right"><%= link_to raw('<i class="icon-trash"></i>'), backup, :confirm => 'Are you sure?', :method => :delete %></td>
       </tr>
       <% end %>
     </tbody>
