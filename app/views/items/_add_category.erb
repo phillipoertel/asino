@@ -1,12 +1,6 @@
 <%= form_for item do |f| %>
   <%= hidden_field_tag :current_account, account.id if account %>
-  <%= f.collection_select(:category_id, Category.all(:order => 'name'), 
-						:id, 
-						:name, {:include_blank => true},  
-						{:onchange => "$.ajax({
-							type: 'GET',
-							url: '#{add_category_item_path(item)}',
-							data: $('#edit_item_#{item.id}').serialize(this.form) })"}) %>
+  <%= item_category_select(f, item) %>
 <% end %>
 
 
