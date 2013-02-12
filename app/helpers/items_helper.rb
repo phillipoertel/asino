@@ -13,6 +13,7 @@ module ItemsHelper
   end
   
   def options_string(current_category)
+    Rails.logger.debug("Current_category: #{current_category.inspect}")
     Category.top_level.map do |category|
       if category.has_subcategories?
         sub_options = option_tag(category, current_category, true)
@@ -26,7 +27,7 @@ module ItemsHelper
   
   def option_tag(category, current_category, common = false)
     attrs = {:value => category.id}
-    attrs[:selected] = 'selected' if (category.id == current_category.id)
+    attrs[:selected] = 'selected' if (current_category && category.id == current_category.id)
     name = category.name.dup
     name << " (Allgemein)" if common
     content_tag('option', name, attrs).html_safe
