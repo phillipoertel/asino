@@ -18,7 +18,7 @@
     <% @categories.each do |category| %>
       <tr id="category_<%= category.id %>" class="<%= cycle('odd', 'even') %> hover">
         <td colspan="2"><%= link_to h(category.name), category %></td>
-        <td class="text-right"><%= category.items.size %></td>
+        <td class="text-right"><%= category.items.size unless category.items.empty? %></td>
         <td class="text-right">
           <%= link_to raw('<i class="icon-pencil"></i>'), edit_category_path(category), :title => 'Bearbeiten' %>
           <%= link_to raw('<i class="icon-trash"></i>'), category, :confirm => 'Are you sure?', :method => :delete %>
@@ -28,7 +28,7 @@
       <tr id="category_<%= category.id %>" class="<%= cycle('odd', 'even') %> hover">
     	<td class="text-right">-</td>
         <td><%= link_to h(subcategory.name), subcategory %></td>
-        <td class="text-right"><%= category.items.size %></td>
+        <td class="text-right"><%= subcategory.items.size unless subcategory.items.empty? %></td>
         <td class="text-right">
           x<%= link_to raw('<i class="icon-pencil"></i>'), edit_category_path(subcategory), :title => 'Bearbeiten' %>
           <%= link_to raw('<i class="icon-trash"></i>'), category_path(subcategory), :confirm => 'Are you sure?', :method => :delete %>
