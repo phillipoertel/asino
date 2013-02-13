@@ -4,12 +4,12 @@
     <td style="width:150px;">
       <%= link_to(category.name, 'javascript:', {:'data-subcategory' => "#{container}_category_#{category.object_id}"}) %>
     </td>
-    <td class="text-right" style="width:20px;"><%= category.percent %>%</td>
+    <td class="text-right" style="width:20px;"><%= category.percent.round %>%</td>
     <td class="text-right" style="width:80px;">
-      <%= currency(category.sum) %>
+      <%= currency(category.sum, 0) %>
     </td>
     <td class="text-right medium" style="width:100px;">
-      <%= currency(category.sum - category.lastmonth_sum) if category.lastmonth_sum  %>
+      <%= currency(category.sum - category.lastmonth_sum, 0) if category.lastmonth_sum  %>
       <%= trend_img(category.sum - category.lastmonth_sum) %>
     </td>
   </tr>
@@ -23,7 +23,7 @@
             <%= item.payee %>
           </td>
           <td class="text-right<%= get_saldo_class(item.amount) %>" style="width:80px;">
-            <%= currency item.amount %>
+            <%= currency item.amount, 0 %>
           </td>
           <td class="text-right"></td>
           <td></td>

@@ -38,8 +38,8 @@ module ApplicationHelper
     end
   end
   
-  def currency(number)
-     number_to_currency(number, :unit => "&euro;", :separator => ",", :delimiter => ".", :format => "%n %u")
+  def currency(number, precision = 2)
+     number_to_currency(number, :precision => precision, :unit => "&euro;", :separator => ",", :delimiter => ".", :format => "%n %u")
    end
 
 end
