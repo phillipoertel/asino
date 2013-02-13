@@ -12,7 +12,7 @@
     <%= javascript_include_tag "application" %>
     <%= javascript_include_tag "rgraph/rgraph"  if @include_graph_scripts %>
 
-    <%= favicon_link_tag '/assets/favicon.ico', :rel => 'shortcut icon' %>
+    <link href="/favicon.ico" rel="shortcut icon" />
   </head>
   <body data-initializer="<%= controller.controller_name.camelize + controller.action_name.camelize %>">
 
