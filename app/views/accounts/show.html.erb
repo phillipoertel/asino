@@ -1,110 +1,143 @@
-<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
 
-<div class="column right">
-  <table>
-	  <tr>
-		<td class="al em" colspan="3" rowspan="2">
-		    <h1 id="pagetitle">
-          	<% if @startdate %>
-          	<%= link_to image_tag('icons/left.png'), "#{request.path}?month=#{@month - 1}", 
-          	                    :title => l((@startdate - 1.month), :format => :monthname) %> 
-          	  <%= @account ? @account.title : 'Alle Konten'  %>: <%= l @startdate, :format => :monthname_and_year %>
-          	<%= link_to image_tag('icons/right.png'), "#{request.path}?month=#{@month + 1}", 
-          	                    :title => l((@startdate + 1.month), :format => :monthname) %>
-          	<% end %>
-            </h1>
-			<div style="padding:10px 0px 5px 0px;display:block;">
-			  <%= form_tag(search_accounts_path, :method => :get) do |f| %>
-			  <input type="search" name="term" size="20">
-			  <input type="hidden" name="account_id" value="<%= @account.id if @account %>">
-			  <%= submit_tag 'Suche', :class => 'small' %>
-			  <% end %>
-			</div>
-		</td>
-        <td colspan="2" class="ar"><b>Kontostand: <%= currency @sum %></b></td>
-        <td colspan="3"></td>
-	  </tr>
-	  <tr>
-  	    <td class="ar" colspan="2">
-    		  <% if @income %>
-    		    &nbsp;<br/>
-    	        Einnahmen: 
-    	          <span id="income">+<%= currency @income %></span><br/>
-    		    Ausgaben: 
-    		      <span id="expenses"><%= currency @expenses %></span><br/>
-    		    <% end %>
-    		    <% if @income and @expenses %>
-    		      <hr/>
-    		      Gesamt 
-    		      <span id="saldo"><%= currency(@income + @expenses) %></span>
-    		    <% elsif @result_saldo %>
-    		      <hr/>
-    		      Gesamt 
-    		      <span id="saldo"><%= currency(@result_saldo) %></span>
-    		    <hr/>
-    		   <% end %>
-  	    </td>
-  		<td class="al light" colspan="2">
-    		  <% if @lastmonth %>
-    		    Unterschied zum <%= (@lastmonth).strftime("%d.%m.") %><br/>
-    		    <%= "+" if (@income - @last_month_income) > 0 %>
-    	        <%= currency(@income - @last_month_income) %>
-    		    <%= trend_img(@income - @last_month_income) %><br/>
-    		    <%= "+" if (@expenses - @last_month_expenses) > 0 %>
-    		    <%= currency(@expenses - @last_month_expenses) %>
-    		    <%= trend_img(@expenses - @last_month_expenses) %><br/>
-    		    <hr />
-    		    <%= "+" if ((@income + @expenses) - (@last_month_income + @last_month_expenses)) > 0 %>
-    		    <%= currency((@income + @expenses) - (@last_month_income + @last_month_expenses)) %>
-    		    <%= trend_img ((@income + @expenses) - (@last_month_income + @last_month_expenses))%>
-    		    <hr/>
-    		  <% end %>
-  		</td>
-  		<td></td>
-      </tr>
-	  <tr>
-		<th class="ar">
-          <%= sortlink('Datum', 'date') %>
-		</th>
-		<th class="al">
-		  <%= sortlink('Empfänger', 'payee') %>
-		</th>
-		<th class="al">
-          <%= sortlink('Beschreibung', 'descr') %>
-		</th>
-		<th class="al"><%= 'Konto' unless @account %></th>
-		<th class="ar">
-		  <%= sortlink('Saldo', 'saldo') %>
-		</th>
-		<th class="al">
-		  Kategorie
-		</th>
-		<th style="width:60px;"></th>
-	  </tr>
-    <% @items.each do |item| %>
-      <%= render :partial => 'items/item_row' , :locals => {:item => item, :account => @account }%>
-    <% end %>
-    <% if @items.empty? %>
-      <tr>
-	    <td colspan="7">
-		  Für dieses Konto wurden noch keine Zahlungen eingegeben.
-		  <% if @account %>
-		    <div class="m20">
-		      <%= link_to 'Neue Zahlung eingeben', new_account_item_path(@account), :class => 'button' %>
-		      <% unless @account.feed.blank? %>
-		        oder <%= link_to 'Zahlungen von Saldomat übernehmen', "/items/get_from_rss", :class => 'button' %>
-		      <% end %>
-		    </div>
-		  <% end %>
-	    </td>
-	  </tr>
-    <% end %>
+<table class="table table-nohover">
+  <tr>
+  <td class="al em" colspan="3" rowspan="2">
+      <h1 id="pagetitle">
+          <% if @startdate %>
+          <%= link_to image_tag('icons/left.png'), "#{request.path}?month=#{@month - 1}", 
+                              :title => l((@startdate - 1.month), :format => :monthname) %> 
+            <%= @account ? @account.title : 'Alle Konten'  %>: <%= l @startdate, :format => :monthname_and_year %>
+          <%= link_to image_tag('icons/right.png'), "#{request.path}?month=#{@month + 1}", 
+                              :title => l((@startdate + 1.month), :format => :monthname) %>
+          <% end %>
+          </h1>
+    <div style="padding:10px 0px 5px 0px;display:block;">
+      <%= form_tag(search_accounts_path, :method => :get, :class => "form-search") do |f| %>
+        <div class="input-append">
+          <input type="search" name="term" size="20" class="span2 search-query">
+          <input type="hidden" name="account_id" value="<%= @account.id if @account %>">
+          <%= submit_tag 'Suche', :class => 'btn' %>
+        </div>
+      <% end %>
+      <% if @account %>
+        <%= link_to 'Neue Zahlung', new_account_item_path(@account), :class => 'btn' %>
+      <% else %>
+        <%= link_to 'Neue Zahlung', new_item_path(), :class => 'btn' %>
+      <% end %>
+    </div>
+  </td>
+      <td colspan="2" class="text-right"><b>Kontostand: <%= currency @sum %></b></td>
+      <td colspan="3"></td>
+  </tr>
+  <tr>
+      <td class="text-right" colspan="2">
+        <% if @income %>
+          &nbsp;<br/>
+            Einnahmen: 
+              <span id="income">+<%= currency @income %></span><br/>
+          Ausgaben: 
+            <span id="expenses"><%= currency @expenses %></span><br/>
+          <% end %>
+          <% if @income and @expenses %>
+            <hr/>
+            Gesamt 
+            <span id="saldo"><%= currency(@income + @expenses) %></span>
+          <% elsif @result_saldo %>
+            <hr/>
+            Gesamt 
+            <span id="saldo"><%= currency(@result_saldo) %></span>
+          <hr/>
+         <% end %>
+      </td>
+    <td class="al light" colspan="2">
+        <% if @lastmonth %>
+          Unterschied zum <%= (@lastmonth).strftime("%d.%m.") %><br/>
+          <%= "+" if (@income - @last_month_income) > 0 %>
+            <%= currency(@income - @last_month_income) %>
+          <%= trend_img(@income - @last_month_income) %><br/>
+          <%= "+" if (@expenses - @last_month_expenses) > 0 %>
+          <%= currency(@expenses - @last_month_expenses) %>
+          <%= trend_img(@expenses - @last_month_expenses) %><br/>
+          <hr />
+          <%= "+" if ((@income + @expenses) - (@last_month_income + @last_month_expenses)) > 0 %>
+          <%= currency((@income + @expenses) - (@last_month_income + @last_month_expenses)) %>
+          <%= trend_img ((@income + @expenses) - (@last_month_income + @last_month_expenses))%>
+          <hr/>
+        <% end %>
+    </td>
+    <td></td>
+    </tr>
   </table>
-  <div class="action">
-	<%= link_to 'Konto bearbeiten', edit_account_path(@account.id) if @account %>
-  </div>
+
+
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="text-right"><%= sortlink('Datum', 'date') %></th>
+        <th class="al"><%= sortlink('Empfänger', 'payee') %></th>
+        <th class="al"><%= sortlink('Beschreibung', 'descr') %></th>
+        <th class="al"><%= 'Konto' unless @account %></th>
+        <th class="text-right"><%= sortlink('Saldo', 'saldo') %></th>
+        <th class="al">Kategorie</th>
+        <th style="width:60px;"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @items.each do |item| %>
+        <%= render :partial => 'items/item_row' , :locals => {:item => item, :account => @account }%>
+      <% end %>
+      <% if @items.empty? %>
+      <tr>
+        <td colspan="7">
+        Für dieses Konto wurden noch keine Zahlungen eingegeben.
+        <% if @account %>
+          <div class="m20">
+            <%= link_to 'Neue Zahlung eingeben', new_account_item_path(@account), :class => 'button' %>
+            <% unless @account.feed.blank? %>
+              oder <%= link_to 'Zahlungen von Saldomat übernehmen', "/items/get_from_rss", :class => 'button' %>
+            <% end %>
+          </div>
+        <% end %>
+        </td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<div class="action">
+<%= link_to 'Konto bearbeiten', edit_account_path(@account.id) if @account %>
 </div>
 
-<div class="clr"></div>
 
-<div id="note" style="display:none;">Note</div>
+<!-- add note modal -->
+<div id="addNote" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="noteModalLabel">Neue Notiz</h3>
+  </div>
+  <%= form_for(Item.new, :html => {:method => 'post', :remote => true}) do |f| %>
+    <div class="modal-body">
+      <%= f.text_area :note, :rows => 4, :style => 'width:320px;' %>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary">Speichern</button>
+      oder
+      <a data-dismiss="modal" aria-hidden="true">abbrechen</a>
+    </div>
+  <% end %>
+</div>
+
+<!-- show note modal -->
+<div id="showNote" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="showNoteModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="showNoteModalLabel">Notiz</h3>
+  </div>
+    <div class="modal-body">
+      
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal" aria-hidden="true">Schließen</button>
+    </div>
+</div>

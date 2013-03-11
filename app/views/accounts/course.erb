@@ -1,7 +1,6 @@
-<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
 
-<div class="column right" style="width:80%;">
-  <h2>Verlauf</h2>
+<div>
+  <h1>Verlauf</h1>
 
   <canvas id="courseGraph" width="800" height="350">[Ihr Internetbrowser unterstützt kein Canvas Objekt.]</canvas>
 
@@ -10,13 +9,15 @@
       {
   
   
-          var l = new RGraph.Line('courseGraph', [<%= @expenses.collect {|m| m[1] * -1}.join(',') %>], 
-                                                 [<%= @income.collect {|m| m[1]}.join(',') %>],
-                                                 [<%= @saldo.collect {|m| m[1]}.join(',') %>]);
-          l.Set('chart.labels', ['<%= @expenses.collect {|d| l(d[0], :format => :monthname_abbrev)}.join("','") %>']);
-          l.Set('chart.gutter', 50);
+          var l = new RGraph.Line('courseGraph', [<%= raw @expenses.collect {|m| m[1] * -1}.join(',') %>], 
+                                                 [<%= raw @income.collect {|m| m[1]}.join(',') %>],
+                                                 [<%= raw @saldo.collect {|m| m[1]}.join(',') %>]);
+          l.Set('chart.labels', ['<%= raw @expenses.collect {|d| l(d[0], :format => :monthname_abbrev)}.join("','") %>']);
+          l.Set('chart.gutter.left', 70);
           l.Set('chart.outofbounds', true); 
-          <%= "l.Set('chart.xaxispos', 'center');" unless @saldo.collect {|m| m[1]}.select {|v| v < 0}.empty? %>
+          <% unless @saldo.collect {|m| m[1]}.select {|v| v < 0}.empty? %>
+            //l.Set('chart.xaxispos', 'center');
+          <% end %>
           l.Set('chart.linewidth', 1.5)
           l.Set('chart.shadow', true);
           l.Set('chart.shadow.offsetx', 5);
@@ -25,6 +26,7 @@
           l.Set('chart.shadow.color', 'rgba(0,0,0,0.1)');
           l.Set('chart.tickmarks', 'circle');
           l.Set('chart.axis.color', '#777')
+          l.Set('chart.spline', !RGraph.isOld());
           l.Set('chart.background', '#fafafa');
           l.Set('chart.background.grid.autofit', true)
           l.Set('chart.background.grid.color', '#eee')
@@ -43,9 +45,9 @@
           l.Set('chart.key.shadow.blur', 15);
           l.Set('chart.key.shadow.color', '#ccc');
           l.Set('chart.key.rounded', true);
-          l.Set('chart.tooltips', ['<%= @expenses.collect {|m| m[1]}.join("','")  %>'],
-                                  ['<%= @income.collect {|m| m[1]}.join("','")  %>'],
-                                  ['<%= @saldo.collect {|m| m[1]}.join("','")  %>']);
+          l.Set('chart.tooltips', ['<%= raw @expenses.collect {|m| m[1]}.join("','")  %>'],
+                                  ['<%= raw @income.collect {|m| m[1]}.join("','")  %>'],
+                                  ['<%= raw @saldo.collect {|m| m[1]}.join("','")  %>']);
   
           l.Draw();
       }

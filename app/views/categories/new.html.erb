@@ -1,41 +1,25 @@
-<div class="column left">
-  <h3><%= link_to 'Konten', '/accounts' %></h3>
-  <% @accounts.each do |account| %>
-    <%= link_to account.title, account, :style => "#{'font-weight:bold;' if account == @account}" %><br/>
-  <% end %>
+<div>
+  <h1>Neue Kategorie</h1>
+  
+  <%= form_for(@category) do |f| %>
+    <%= error_messages_for @category %>
 
-  <h3>Neue Zahlung</h3>
-    <%= link_to 'Neue Zahlung', new_account_item_path(@account) if @account %>
-
-  <h3>Kategorien</h3>
-  <%= link_to 'Alle Kategorien', categories_path %><br/>
-  <%= link_to 'Neue Kategorie', new_category_path(:account_id => @account.id) if @account %>
-</div>
-
-<div class="column right">
-<h1>Neue Kategorie</h1>
-
-<%= form_for(@category) do |f| %>
-  <%= error_messages_for @category %>
-
-  <p>
-    <%= f.label :name %><br />
+    <%= f.label :name %>
     <%= f.text_field :name, :autofocus => true %>
-  </p>
-  <p>
-    <%= f.label :category, 'In Überkategorie' %><br />
+
+    <%= f.label :category, 'In Überkategorie' %>
     <%= f.collection_select(:category_id, 
                             Category.where('category_id is NULL').order('name'), :id, :name, {:include_blank => true}) %>
-  </p>
-  <p>
-	<%= f.check_box :transfer %>
-    <%= f.label :transfer, 'Zahlungen dieser Kategorie sind Transfers zwischen eigenen Konten' %>
-  </p>
-  <p>
-    <%= f.submit 'Speichern' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
-  </p>
-  <%= f.hidden_field :account_id %>
-<% end %>
-</div>
 
-<div class="clr"> </div>
+    <label class="checkbox">
+  	  <%= f.check_box :transfer %>
+      Zahlungen dieser Kategorie sind Transfers zwischen eigenen Konten
+    </label>
+
+    <p class="m20">
+      <%= f.submit 'Speichern', :class => 'btn btn-primary' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
+    </p>
+
+    <%= f.hidden_field :account_id %>
+  <% end %>
+</div>

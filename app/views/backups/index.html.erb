@@ -1,36 +1,37 @@
+<h1 id="pagetitle">Datenbank sichern</h1>
 
-<div class="column right">
-  <h1 id="pagetitle">Datenbank sichern</h1>
-  
-  <% if user_signed_in? %>
+<% if user_signed_in? %>
   <div>
-      <%= link_to 'Daten jetzt sichern', backups_path, :method => :post, :class => 'button' %>
+    <% if @button_enabled %>
+    <%= link_to('Daten jetzt sichern', backups_path, :method => :post, :class => 'btn btn-primary') %>
+    <% else %>
+    <% end %>
   </div>
   <br/>
-  <% end %>
-  
-  
-  <% unless @backups.empty? %>
-  <table>
-    <tr>
-      <th class="al">Dateiname</th>
-      <th class="ar">Erzeugt</th>
-      <th></th>
-    </tr>
-  
-  <% @backups.each do |backup| %>
-    <tr>
-      <td><%= backup.file_name %></td>
-      <td class="ar"><%= backup.created_at.strftime("%d.%m.%Y %H:%M:%S") %></td>
-      <td class="ar"><%= link_to image_tag('icons/delete.png'), backup, :confirm => 'Are you sure?', :method => :delete %></td>
-    </tr>
-  <% end %>
-  </table>
-  <% else %>
-    <div class="m20">
-    Es wurden bisher keine Sicherungen angelegt! Sie sollten <%= link_to "Ihre Daten jetzt sichern", backups_path, :method => :post %>.
-    </div>
-  <% end %>
-</div>
+<% end %>
 
-<div class="clr"> </div>
+<% unless @backups.empty? %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="al">Dateiname</th>
+        <th class="text-right">Erzeugt</th>
+        <th></th>
+      </tr>
+    </thead>
+  
+    <tbody>
+      <% @backups.each do |backup| %>
+      <tr>
+        <td><%= backup.file_name %></td>
+        <td class="text-right"><%= backup.created_at.strftime("%d.%m.%Y %H:%M:%S") %></td>
+        <td class="text-right"><%= link_to raw('<i class="icon-trash"></i>'), backup, :confirm => 'Are you sure?', :method => :delete %></td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="m20">
+    Es wurden bisher keine Sicherungen angelegt! Sie sollten <%= link_to "Ihre Daten jetzt sichern", backups_path, :method => :post %>.
+  </div>
+<% end %>

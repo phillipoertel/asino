@@ -1,0 +1,49 @@
+body {
+	padding-top: 60px;
+}
+
+
+h1 {
+	font-size:22px !important;
+}
+
+td {
+	font-size: 12px !important;
+}
+
+th {
+	white-space:nowrap;
+}
+
+select {
+	width: 140px !important;
+	font-size: 12px !important;
+}
+
+.table tr:hover td {
+	background: #eee;
+}
+
+.table-nohover tr:hover td {
+	background: transparent;
+}
+
+footer {
+	border-top: 1px solid #eee;
+	text-align: center;
+	padding: 20px;
+	font-size: 11px;
+}
+
+.m20 {
+	margin: 20px 0;
+}
+
+.va {
+	vertical-align: center;
+}
+
+
+.text-right {
+	text-align: right !important;
+}

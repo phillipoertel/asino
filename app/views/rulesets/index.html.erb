@@ -1,23 +1,30 @@
-<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
 
-<div class="column right">
 <h1>Regeln</h1>
+
+<div class="m20">
+  <%= link_to 'Neue Regel', new_ruleset_path, :class => 'btn' %>
+</div>
+
 <% unless @rulesets.empty? %>
-<table style="width:950px;">
-  <tr>
-    <th class="al">
-      Name
-    </th>
-    <th class="al">Konto</th>
-    <th class="al">Aktion</th>
-    <th class="ac">
-      Aktiv
-    </th>
-    <th style="width:40px;"></th>
-  </tr>
+<table class="table">
+  <thead>
+    <tr>
+      <th class="al">
+        Name
+      </th>
+      <th class="al">Konto</th>
+      <th class="al">Aktion</th>
+      <th class="ac">
+        Aktiv
+      </th>
+      <th style="width:40px;"></th>
+    </tr>
+  </thead>
+  <tbody>
   <% @rulesets.each do |ruleset| %>
     <%= render :partial => 'rulesets/ruleset_row' , :locals => {:ruleset => ruleset }%>
   <% end %>
+  </tbody>
 </table>
 <% else %>
 <div class="m20">
@@ -25,8 +32,4 @@
   Mit Hilfe von Regeln können Sie neu eingehende Transaktionen automatisch Kategorien zuordnen.
 </div>
   <%= link_to 'Neue Regel anlegen', new_ruleset_path, :class => 'button' %>
-
 <% end %>
-</div>
-
-<div class="clr"> </div>

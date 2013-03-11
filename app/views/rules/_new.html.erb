@@ -1,8 +1,8 @@
 
-<%= form_for(Rule.new) do |f| %>
+<%= form_for Rule.new, :html => {:class => "form-inline"} do |f| %>
 	<%= f.select :affected_attribute, [['Empfänger', 'payee'],['Beschreibung','description']] %>
 	<%= f.select :matchtype, [['ist', 'exact'],['enthält','contains']] %>
 	<%= f.text_field :matching_string %>
 	<%= f.hidden_field :ruleset_id, :value => ruleset.id %>
-	<%= f.submit 'Speichern' %>
+	<%= f.submit 'Speichern', :class => 'btn' %>
 <% end %>

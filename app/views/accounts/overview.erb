@@ -1,15 +1,17 @@
-<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
 
-<div class="column right" style="width:80%;">
   <h1>
   	<%= link_to image_tag('icons/left.png'), "#{request.path}?month=#{@month - 1}", 
-  	                    :title => l((@startdate - 1.month), :format => :monthname) %>
-	Ausgaben <%= @account.title if @account %>: <%= l @startdate, :format => :monthname_and_year %>
+  	                                          :title => l((@startdate - 1.month), 
+                                              :format => :monthname) %>
+
+	  Ausgaben <%= @account.title if @account %>: <%= l @startdate, :format => :monthname_and_year %>
+
   	<%= link_to image_tag('icons/right.png'), "#{request.path}?month=#{@month + 1}", 
-  	                    :title => l((@startdate + 1.month), :format => :monthname) %>
+  	                                           :title => l((@startdate + 1.month), 
+                                               :format => :monthname) %>
   </h1>
 
-  <canvas id="expenseGraph" width="400" height="550">
+  <canvas id="expenseGraph" width="390" height="300">
       [Ihr Internetbroswer unterstützt kein Canvas Objekt.]
   </canvas>
   <script>
@@ -17,8 +19,12 @@
       {
           var p = new RGraph.Pie('expenseGraph', [<%= @expense_categories.collect {|m| m.sum * -1}.join(',') %>]);
           p.Set('chart.title', 'Ausgaben')
-          p.Set('chart.labels', ['<%= @expense_categories.collect {|d| "#{d.percent}% #{d.name}" if d.percent > 1}.join("','") %>']);
-          p.Set('chart.gutter', 120)
+          p.Set('chart.title.size', 12)
+          p.Set('chart.labels', ['<%= raw @expense_categories.collect {|d| "#{d.percent.round}% #{d.name}" if d.percent > 5}.join('\',\'') %>']);
+          p.Set('chart.gutter.left', 120)
+          p.Set('chart.gutter.right', 120)
+          p.Set('chart.gutter.top', 30)
+          p.Set('chart.gutter.bottom', 30)
           p.Set('chart.linewidth', 1);
           p.Set('chart.stroke', '#fff');
           p.Set('chart.strokestyle', '#fff');
@@ -36,7 +42,7 @@
       }
   </script>
   
-  <canvas id="incomeGraph" width="400" height="550">
+  <canvas id="incomeGraph" width="390" height="300">
       [Ihr Internetbroswer unterstützt kein Canvas Objekt.]
   </canvas>
   
@@ -47,8 +53,12 @@
   
           var i = new RGraph.Pie('incomeGraph', [<%= @income_categories.collect {|m| m.sum * -1}.join(',') %>]);
           i.Set('chart.title', 'Einnahmen')
-          i.Set('chart.labels', ['<%= @income_categories.collect {|d| "#{d.percent}% #{d.name}" if d.percent > 0.5}.join("','") %>']);
-          i.Set('chart.gutter', 120)
+          i.Set('chart.title.size', 12)
+          i.Set('chart.labels', ['<%= raw @income_categories.collect {|d| "#{d.percent.round}% #{d.name}" if d.percent > 5}.join("','") %>']);
+          i.Set('chart.gutter.left', 120)
+          i.Set('chart.gutter.right', 120)
+          i.Set('chart.gutter.top', 30)
+          i.Set('chart.gutter.bottom', 30)
           i.Set('chart.linewidth', 1);
           i.Set('chart.stroke', '#fff');
           i.Set('chart.strokestyle', '#fff');
@@ -66,42 +76,41 @@
   
   <div class="m20"></div>
   
-  <table style="float:left;width:400px;display:block;">
+  <table class="table" style="float:left;width:400px;display:block;">
     <tr>
-	  <td class="ar em" colspan="3">
-	    Ausgaben: <%= currency @expenses.to_s %><br/>
+	  <td class="text-right em" colspan="3">
+	    <strong>Ausgaben: <%= currency @expenses.to_i.to_s, 0 %></strong><br/>
 	    <hr/>
 	  </td>
-	  <td class="ar medium">Unterschied zum Vormonat</td>
-	  <td class="ar"></td>
+	  <td class="text-right medium">Unterschied zum Vormonat</td>
+	  <td class="text-right"></td>
 	</tr>
-    <%= render :partial => 'categories/categorized_items', :locals => {:categories => @expense_categories, :container => 'expenses'} %>
+    <%= render :partial => 'categories/categorized_items', :locals => {:categories => @expense_categories, 
+                                                                       :container => 'expenses'} %>
   </table>
 
-  <table style="float:left;width:400px;display:block;">
+  <table class="table" style="float:left;width:400px;display:block;">
     <tr>
-	  <td class="ar em" colspan="3">
-	    Einnahmen: + <%= currency @income %><br/>
+	  <td class="text-right em" colspan="3">
+	    <strong>Einnahmen: + <%= currency @income, 0 %></strong><br/>
 	    <hr/>
 	  </td>
-	  <td class="ar medium">Unterschied zum Vormonat</td>
-	  <td class="ar"></td>
+	  <td class="text-right medium">Unterschied zum Vormonat</td>
+	  <td class="text-right"></td>
 	</tr>
-    <%= render :partial => 'categories/categorized_items', :locals => {:categories => @income_categories, :container => 'income'} %>
+    <%= render :partial => 'categories/categorized_items', :locals => {:categories => @income_categories, 
+                                                                       :container => 'income'} %>
     <tr>
-	  <td class="ar em" colspan="3">
+	  <td class="text-right em" colspan="3">
 	    <hr class="nomargin" /><hr class="nomargin" />
-	    Gesamt: + <%= currency @income + @expenses %><br/>
+	    <strong>Gesamt: <%= currency @income + @expenses, 0 %></strong><br/>
 	  </td>
 	  <td></td>
 	</tr>  
   </table>
- 
-  <div class="clr"></div>
-  
-  <div class="m20"></div>
-  
-</div>
 
-<div class="clr"></div>
+  <div style="clear:both"></div>
+  <div class="m20 muted"><small>Bitte beachten: Alle Werte in dieser Ansicht sind auf ganze Zahlen gerundet.</small></div>
+ 
+
 

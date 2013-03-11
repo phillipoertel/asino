@@ -1,9 +1,9 @@
-<%= render :partial => 'layouts/sidebar', :locals => {:account => @account, :accounts => @accounts} %>
 
-<div class="column right">
 <h1>Neues Konto anlegen</h1>
 
-<%= raw note 'RSS Feed einrichten', 'asino greift Ihre Kontotransaktionen vom Saldomat RSS Feed ab. Werfen Sie bitte einen Blick in die Saldomat Einstellungen -> "RSS Server um" diesen zu aktivieren.' %>
+<div class="alert alert-block">
+asino greift Ihre Kontotransaktionen vom Saldomat RSS Feed ab. Werfen Sie bitte einen Blick in die Saldomat Einstellungen -> "RSS Server um" diesen zu aktivieren.
+</div>
 
 <%= form_for(@account) do |f| %>
   <% if @account.errors.any? %>
@@ -15,19 +15,14 @@
       </ul>
     </div>
   <% end %>
-  <p>
-    <%= f.label :title, 'Name des Kontos' %> <br />
+
+    <%= f.label :title, 'Name des Kontos' %>
     <%= f.text_field :title %>
-  </p>
-  <p>
-    <%= f.label :feed, 'Lokale Saldomat RSS-Feed URL' %><br />
+
+    <%= f.label :feed, 'Lokale Saldomat RSS-Feed URL' %>
     <%= f.text_field :feed %>
-  </p>
-  <p>
-    <%= f.submit 'Speichern' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
+
+  <p class="m20">
+    <%= f.submit 'Speichern', :class => 'btn btn-primary' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
   </p>
 <% end %>
-
-</div>
-
-<div class="clr"> </div>
