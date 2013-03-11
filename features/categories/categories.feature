@@ -1,3 +1,4 @@
+# encoding: UTF-8
 @category
 Feature: Create a category
   In order to see all transactions within an account

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 # Manages categories that apply to items
 class CategoriesController < ApplicationController
   
@@ -48,7 +49,7 @@ class CategoriesController < ApplicationController
   def update
     respond_to do |format|
       if @category.update_attributes(params[:category])
-        format.html { redirect_to(categories_path, :notice => 'Die &Auml;nderungen an der Kategorie wurden gespeichert.') }
+        format.html { redirect_to(categories_path, :notice => 'Die Änderungen an der Kategorie wurden gespeichert.') }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }

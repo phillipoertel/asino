@@ -16,11 +16,20 @@ asino greift Ihre Kontotransaktionen vom Saldomat RSS Feed ab. Werfen Sie bitte 
     </div>
   <% end %>
 
+  <p>
     <%= f.label :title, 'Name des Kontos' %>
     <%= f.text_field :title %>
-
-    <%= f.label :feed, 'Lokale Saldomat RSS-Feed URL' %>
+  </p>
+  
+  <p>
+    <%= f.label :importer, 'Quelle' %><br />
+    <%= f.select('importer', options_for_select(AccountImporter::TYPES.map { |i| [i, i] }, 'Saldomat')) %><br />
+  </p>
+  
+  <p>
+    <%= f.label :feed, 'Lokale Saldomat RSS-Feed URL' %><br />
     <%= f.text_field :feed %>
+  </p>
 
   <p class="m20">
     <%= f.submit 'Speichern', :class => 'btn btn-primary' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>

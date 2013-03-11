@@ -7,8 +7,6 @@
   <script>
       window.onload = function ()
       {
-  
-  
           var l = new RGraph.Line('courseGraph', [<%= raw @expenses.collect {|m| m[1] * -1}.join(',') %>], 
                                                  [<%= raw @income.collect {|m| m[1]}.join(',') %>],
                                                  [<%= raw @saldo.collect {|m| m[1]}.join(',') %>]);

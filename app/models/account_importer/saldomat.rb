@@ -1,13 +1,17 @@
 class AccountImporter::Saldomat
   
-  def initialize(options = {})
-    @feed = options[:feed_file].read
-    @account_id = options[:account_id]
+  require 'rss/2.0'
+  require 'open-uri'
+  require 'date'
+
+  def initialize(account)
+    @account_id = account.id
+    @feed       = account.feed
   end
   
-  def import!
+  def import
     
-    feed.entries.each do |entry|
+    feed_entries.each do |entry|
       
       puts "title: #{entry.title}"
       puts "amount: #{entry.title.sanitize.split(' - ')[0]}"
@@ -29,7 +33,7 @@ class AccountImporter::Saldomat
       
       Item.create({
         :uid => entry.id, 
-        :created_at => entry.updated.to_date,
+        :created_at => entry.updated.to_date.to_datetime + 12.hours,
         :account_id => @account_id,
         :amount => entry.title.sanitize.split(' - ')[0].gsub('.','').gsub(',','.').to_f,
         :payee => entry.title.sanitize.split(' - ')[1],
@@ -40,8 +44,8 @@ class AccountImporter::Saldomat
   
   private 
   
-    def feed
-      Feedzirra::Feed.parse(@feed)
+    def feed_entries
+      Feedzirra::Feed.parse(open(@feed).read).entries
     end
   
 end

@@ -4,14 +4,22 @@
 <%= form_for(@account) do |f| %>
   <%= error_messages_for @account %>
 
-  <%= f.label :title, 'Name des Kontos' %>
-  <%= f.text_field :title %>
-
-  <%= f.label :feed, 'Lokale Saldomat RSS-Feed URL' %>
-  <%= f.text_field :feed %>
-
-  <p class="m20">
-    <%= f.submit 'Speichern', :class => 'btn btn-primary' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
+  <p>
+    <%= f.label :title, 'Name des Kontos' %><br />
+    <%= f.text_field :title %>
+  </p>
+  
+  <p>
+    <%= f.label :importer, 'Quelle' %><br />
+    <%= f.select('importer', options_for_select(AccountImporter::TYPES.map { |i| [i, i] }, @account.importer)) %><br />
+  </p>
+  
+  <p>
+    <%= f.label :feed, 'Lokale Saldomat RSS-Feed URL' %><br />
+    <%= f.text_field :feed %>
+  </p>
+  <p>
+    <%= f.submit 'Speichern' %> oder <%= link_to_function 'abbrechen', 'history.back(-1)' %>
   </p>
 <% end %>
 

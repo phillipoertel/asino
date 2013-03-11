@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Account do
+describe AccountImporter::Saldomat do
 
   before(:all) { Account.observers.disable :all }
   after(:all)  { Account.observers.enable :all }
@@ -11,8 +11,11 @@ describe Account do
   end
   
   def import!
+    Item.delete_all
     Item.any_instance.stub(:add_to_monthreport).and_return(true)
-    Account.new.import_from_feed('test/fixtures/saldomat.rss')
+    account = mock(Account, :id => 42, :feed => 'test/fixtures/saldomat.rss')
+    importer = AccountImporter::Saldomat.new(account)
+    importer.import
     Item.all
   end
     

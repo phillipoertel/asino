@@ -4,6 +4,7 @@ gem 'rails'
 gem 'devise'
 gem 'mysql2'
 gem 'feedzirra'
+gem 'outbanker', :git => 'git://github.com/phillipoertel/outbanker.git'
 
 gem 'jquery-rails'
 gem 'sass-rails', '~> 3.2'
