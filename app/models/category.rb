@@ -5,6 +5,8 @@ class Category < ActiveRecord::Base
   belongs_to :category
   
   attr_accessor :account_id, :sum, :lastmonth_sum, :percent
+
+  after_update :update_transfer_attribute_on_items
   
   def has_subcategories?
     !categories.empty?
@@ -17,4 +19,10 @@ class Category < ActiveRecord::Base
   def self.top_level
     where(:category_id => nil).order('name').includes(:categories)
   end
+  
+  private
+  
+    def update_transfer_attribute_on_items
+      items.update_all(:transfer => self.transfer)
+    end
 end
