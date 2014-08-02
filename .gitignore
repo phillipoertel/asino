@@ -19,6 +19,8 @@ db/backups/*
 rails_best_practices_output.html
 pin
 .rvmrc
+.ruby-version
+.ruby-gemset
 .powenv
 config/locales/log
 .DS_Store
